@@ -38,13 +38,6 @@ open class SimpleYAMLConfig(
      */
     var updateNotify: Boolean = true
 ) {
-    constructor(
-        config: ConfigurationSection,
-        isAutoUpdate: Boolean = true,
-        updateNotify: Boolean = true
-    ) : this(null, isAutoUpdate, updateNotify) {
-        this.config = config
-    }
 
     /**
      * 更新时间
@@ -197,7 +190,7 @@ open class SimpleYAMLConfig(
                 if (Map::class.java.isAssignableFrom(key.field.type) && value != null) {
                     value = (value as MemorySection).getValues(false)
                 } else if (Set::class.java.isAssignableFrom(key.field.type) && value != null) {
-                    value = loadConfiguration.getList(key.key).toSet()
+                    value = loadConfiguration.getList(key.key)?.toSet()
                 }
                 if (value != null) {
                     //获取修改的键值

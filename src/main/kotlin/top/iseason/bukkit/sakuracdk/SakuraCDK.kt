@@ -1,13 +1,18 @@
-package top.iseason.bukkit.templateplugin
+package top.iseason.bukkit.sakuracdk
 
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 import top.iseason.bukkit.bukkittemplate.KotlinPlugin
+import top.iseason.bukkit.bukkittemplate.config.ConfigWatcher
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
 import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.utils.toColor
+import top.iseason.bukkit.sakuracdk.data.Kit
+import top.iseason.bukkit.sakuracdk.data.KitsYML
 
-object TemplatePlugin : KotlinPlugin() {
+object SakuraCDK : KotlinPlugin() {
 
     override fun onAsyncLoad() {
+        ConfigurationSerialization.registerClass(Kit::class.java)
 //        command1()
 //        openUICommand()
     }
@@ -27,6 +32,7 @@ object TemplatePlugin : KotlinPlugin() {
 
 //        SimpleYAMLConfig.notifyMessage = "&7配置文件 &6%s &7已重载!"
         Config.load(false)
+        KitsYML.load(false)
 //        LagCatcher.performanceCheck("test", 0) {
 //            DependencyDownloader().addRepositories("https://maven.aliyun.com/repository/public")
 //                .downloadDependency("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
@@ -42,7 +48,7 @@ object TemplatePlugin : KotlinPlugin() {
 //        UIListener.onDisable()
 //
 //        //如果使用配置模块，取消注销
-//        ConfigWatcher.onDisable()
+        ConfigWatcher.onDisable()
 
         info("&6插件已卸载!")
     }

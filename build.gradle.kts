@@ -63,9 +63,10 @@ dependencies {
     compileOnly("org.jetbrains.exposed:exposed-core:$exposedVersion")
     compileOnly("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     compileOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-
+    compileOnly("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    compileOnly("com.zaxxer:HikariCP:4.0.3")
     implementation("org.bstats:bstats-bukkit:3.0.0")
-    compileOnly("org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT")
 
 }
 
@@ -133,6 +134,7 @@ tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
     val allowObf = mapOf("allowobfuscation" to true)
     libraryjars(configurations.compileClasspath.get().files)
     keep("class $groupS.libs.core.BukkitTemplate {}")
+    keep("class * implements org.bukkit.configuration.serialization.ConfigurationSerializable {*;}")
     keep(allowObf, "class * implements $groupS.libs.core.KotlinPlugin {*;}")
     keepclassmembers("class * extends $groupS.libs.core.config.SimpleYAMLConfig {*;}")
     keepclassmembers(allowObf, "class * implements org.bukkit.event.Listener {*;}")
