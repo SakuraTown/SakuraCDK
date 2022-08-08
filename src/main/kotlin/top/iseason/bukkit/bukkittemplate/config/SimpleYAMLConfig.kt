@@ -24,7 +24,7 @@ import java.util.*
  * 一个简单的支持自动重载的配置类，不建议作为数据储存用
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-open class SimpleYAMLConfig(
+abstract class SimpleYAMLConfig(
     /**
      * 默认配置路径，以.yml结尾，覆盖@FilePath
      */
@@ -141,7 +141,7 @@ open class SimpleYAMLConfig(
         } catch (_: Exception) {
         }
         if (notify)
-            info("Config $configPath was saved!")
+            info(saveMessage.format(configPath.name))
     }
 
     /**
@@ -165,7 +165,7 @@ open class SimpleYAMLConfig(
         } catch (_: Exception) {
         }
         if (notify)
-            info(notifyMessage.format(configPath.name))
+            info(loadMessage.format(configPath.name))
     }
 
     /**
@@ -305,6 +305,7 @@ open class SimpleYAMLConfig(
         val configs = mutableMapOf<String, SimpleYAMLConfig>()
 
         //重载提示信息
-        var notifyMessage: String = "Config %s was reloaded!"
+        var loadMessage: String = "Config %s was reloaded!"
+        var saveMessage: String = "Config %s was reloaded!"
     }
 }

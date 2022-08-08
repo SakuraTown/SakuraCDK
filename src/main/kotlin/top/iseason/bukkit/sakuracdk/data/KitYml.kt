@@ -4,11 +4,8 @@ import org.bukkit.Bukkit
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.jetbrains.exposed.sql.exists
-import org.jetbrains.exposed.sql.replace
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.giveItems
 import java.time.LocalDateTime
@@ -16,7 +13,7 @@ import java.time.format.DateTimeFormatter
 
 class KitYml(
     val id: String,
-    val count: Int,
+    val amount: Int,
     val create: LocalDateTime,
     val expires: LocalDateTime
 ) : ConfigurationSerializable {
@@ -25,24 +22,31 @@ class KitYml(
     var commandsImpl = mutableListOf<String>()
     var itemStacksImpl = mutableListOf<ItemStack>()
 
-    //存在数据库
-    fun toKitDataBase() {
+    //上传数据库
+    fun updateDataBase() {
+//        var kit: Kit? = null
         transaction {
-            val findById = Kit.findById(id)
-            if (findById != null) {
-                findById.count = count
-                findById.create = create
-                findById.expires = expires
-                findById.commands = commandsImpl.toDataString()
-                findById.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
+//            addLogger(StdOutSqlLogger)
+            var kit = Kit.findById(this@KitYml.id)
+            if (kit != null) {
+                kit.amount = amount
+                kit.create = create
+                kit.expires = expires
+                if (commandsImpl.isNotEmpty())
+                    kit.commands = commandsImpl.toDataString()
+                if (itemStacksImpl.isNotEmpty())
+                    kit.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
+                Unit
             } else {
-                Kit.new(id) {
-                    this.count = count
+                Kit.new(this@KitYml.id) {
+                    this.amount = amount
                     this.create = create
                     this.expires = expires
-                    this.count = count
-                    this.commands = commandsImpl.toDataString()
-                    this.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
+                    this.amount = amount
+                    if (commandsImpl.isNotEmpty())
+                        this.commands = commandsImpl.toDataString()
+                    if (itemStacksImpl.isNotEmpty())
+                        this.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
                 }
             }
         }
@@ -99,7 +103,7 @@ class KitYml(
     override fun serialize(): MutableMap<String, Any> {
         val mutableMapOf = mutableMapOf<String, Any>()
         mutableMapOf["id"] = id
-        mutableMapOf["count"] = count
+        mutableMapOf["amount"] = amount
         mutableMapOf["create"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(create)
         mutableMapOf["expires"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(expires)
         mutableMapOf["commands"] = commandsImpl
@@ -111,7 +115,7 @@ class KitYml(
         @JvmStatic
         fun deserialize(args: Map<String, Any>): KitYml? {
             val id = args["id"] as? String ?: return null
-            val count = args["count"] as? Int ?: return null
+            val count = args["amount"] as? Int ?: return null
             val time =
                 LocalDateTime.parse(args["create"] as? String ?: return null, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             val expires =

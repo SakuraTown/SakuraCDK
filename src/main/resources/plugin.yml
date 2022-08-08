@@ -13,8 +13,10 @@ runtime-libraries:
 
   libraries:
     - org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}
+    - org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}
+    - org.slf4j:slf4j-simple:1.7.30
+    - com.zaxxer:HikariCP:4.0.3
     - org.jetbrains.exposed:exposed-core:${exposedVersion}
     - org.jetbrains.exposed:exposed-dao:${exposedVersion}
     - org.jetbrains.exposed:exposed-jdbc:${exposedVersion}
-#    - org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}
-#    - org.jetbrains.kotlin:kotlinx-coroutines-core:1.6.4
+    - org.jetbrains.exposed:exposed-java-time:${exposedVersion}

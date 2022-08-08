@@ -8,6 +8,8 @@ import org.bukkit.util.io.BukkitObjectOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Base64
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 
 /**
@@ -62,8 +64,12 @@ object ItemUtils {
      */
     fun toByteArray(item: ItemStack): ByteArray {
         val outputStream = ByteArrayOutputStream()
-        BukkitObjectOutputStream(outputStream).use { it.writeObject(item) }
-        return outputStream.toByteArray()
+        BukkitObjectOutputStream(outputStream).use {
+            it.writeObject(item)
+        }
+        val gzipStream = ByteArrayOutputStream()
+        GZIPOutputStream(gzipStream).use { it.write(outputStream.toByteArray()) }
+        return gzipStream.toByteArray()
     }
 
     /**
@@ -77,28 +83,35 @@ object ItemUtils {
                 it.writeObject(item)
             }
         }
-        return outputStream.toByteArray()
+        val gzipStream = ByteArrayOutputStream()
+        GZIPOutputStream(gzipStream).use { it.write(outputStream.toByteArray()) }
+        return gzipStream.toByteArray()
     }
 
     /**
      * 字节转换为一组ItemStack
      */
     fun fromByteArrays(bytes: ByteArray): List<ItemStack> {
-        BukkitObjectInputStream(ByteArrayInputStream(bytes)).use {
-            val mutableListOf = mutableListOf<ItemStack>()
-            val size = it.readInt()
-            for (i in 0 until size) {
-                mutableListOf.add(it.readObject() as ItemStack)
+        GZIPInputStream(ByteArrayInputStream(bytes)).use { it1 ->
+            BukkitObjectInputStream(ByteArrayInputStream(it1.readBytes())).use {
+                val mutableListOf = mutableListOf<ItemStack>()
+                val size = it.readInt()
+                for (i in 0 until size) {
+                    mutableListOf.add(it.readObject() as ItemStack)
+                }
+                return mutableListOf
             }
-            return mutableListOf
         }
+
     }
 
     /**
      * 字节转换为ItemStack
      */
     fun fromByteArray(bytes: ByteArray): ItemStack {
-        BukkitObjectInputStream(ByteArrayInputStream(bytes)).use { return it.readObject() as ItemStack }
+        GZIPInputStream(ByteArrayInputStream(bytes)).use { it1 ->
+            BukkitObjectInputStream(ByteArrayInputStream(it1.readBytes())).use { return it.readObject() as ItemStack }
+        }
     }
 
 
