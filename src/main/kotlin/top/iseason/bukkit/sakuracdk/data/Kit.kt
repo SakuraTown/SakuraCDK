@@ -10,15 +10,13 @@ import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils
 class Kit(
     id: EntityID<String>
 ) : StringEntity(id) {
-
-    var amount by Kits.amount
     var create by Kits.create
     var expires by Kits.expires
     var commands by Kits.commands
     var itemStacks by Kits.itemStacks
 
     fun toKitYml(): KitYml {
-        val kitYml = KitYml(id.value, amount, create, expires)
+        val kitYml = KitYml(id.value, create, expires)
         if (commands != null) {
             kitYml.commandsImpl = commands!!.split(";").toMutableList()
         }

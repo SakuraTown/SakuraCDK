@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -13,7 +13,9 @@ import top.iseason.bukkit.bukkittemplate.config.annotations.Key
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
 import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.dependency.DependencyDownloader
-import top.iseason.bukkit.sakuracdk.SakuraCDK
+import top.iseason.bukkit.sakuracdk.data.CDKsYml
+import top.iseason.bukkit.sakuracdk.data.Kits
+import top.iseason.bukkit.sakuracdk.data.Records
 import java.io.File
 import java.sql.SQLException
 
@@ -43,6 +45,10 @@ object Config : SimpleYAMLConfig() {
     @Comment("", "数据库密码，如果有的话")
     var password = "password"
 
+    @Key
+    @Comment("", "随机cdk模板，X将被替换为随机字符")
+    var cdkTemplate = "XXXX-XXXXXXXX"
+
     override val onLoaded: ConfigurationSection.() -> Unit = {
 //        println("loaded")
     }
@@ -52,7 +58,8 @@ object Config : SimpleYAMLConfig() {
     }
     private var ds: HikariDataSource? = null
 
-    private var isConnected = false
+    var isConnected = false
+        private set
 
     fun closeDB() {
         try {
@@ -79,7 +86,7 @@ object Config : SimpleYAMLConfig() {
 
                 "H2" -> HikariConfig().apply {
                     dd.downloadDependency("com.h2database:h2:2.1.214")
-                    jdbcUrl = "jdbc:h2:$url"
+                    jdbcUrl = "jdbc:h2:$url;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0"
                     driverClassName = "org.h2.Driver"
                 }
 
@@ -114,6 +121,7 @@ object Config : SimpleYAMLConfig() {
                     username = user
                     password = Config.password
                 }
+
                 else -> throw Exception("错误的数据库类型!")
             }
             with(config) {
@@ -132,7 +140,7 @@ object Config : SimpleYAMLConfig() {
                     SchemaUtils.createSchema(schema)
                     SchemaUtils.setSchema(schema)
                 }
-                SchemaUtils.create(Kits)
+                SchemaUtils.create(Kits, Records)
             }
             isConnected = true
             info("&a数据库链接成功!")
@@ -147,6 +155,7 @@ object Config : SimpleYAMLConfig() {
     fun reload() {
         if (isConnected) {
             closeDB()
+            CDKsYml.onDisable()
         }
         reConnectedDB()
     }

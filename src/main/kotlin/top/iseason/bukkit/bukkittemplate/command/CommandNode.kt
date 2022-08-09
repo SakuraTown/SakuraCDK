@@ -226,7 +226,7 @@ open class CommandNode(
                 //参数错误的提示
                 if (e.typeParam != null) sender.sendColorMessage("${SimpleLogger.prefix}${e.typeParam.errorMessage(e.arg)}")
                 else {
-                    node.showUsage(sender)
+//                    node.showUsage(sender)
                     val message = e.message ?: return@submit
                     sender.sendColorMessage("${SimpleLogger.prefix}$message")
                 }

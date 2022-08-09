@@ -13,14 +13,15 @@ import java.time.format.DateTimeFormatter
 
 class KitYml(
     val id: String,
-    val amount: Int,
     val create: LocalDateTime,
-    val expires: LocalDateTime
+    val expire: LocalDateTime
 ) : ConfigurationSerializable {
 
     //过期时间
     var commandsImpl = mutableListOf<String>()
     var itemStacksImpl = mutableListOf<ItemStack>()
+
+    fun isExpire() = LocalDateTime.now().isAfter(expire)
 
     //上传数据库
     fun updateDataBase() {
@@ -29,26 +30,18 @@ class KitYml(
 //            addLogger(StdOutSqlLogger)
             var kit = Kit.findById(this@KitYml.id)
             if (kit != null) {
-                kit.amount = amount
                 kit.create = create
-                kit.expires = expires
-                if (commandsImpl.isNotEmpty())
-                    kit.commands = commandsImpl.toDataString()
-                if (itemStacksImpl.isNotEmpty())
-                    kit.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
-                Unit
+                kit.expires = expire
             } else {
-                Kit.new(this@KitYml.id) {
-                    this.amount = amount
+                kit = Kit.new(this@KitYml.id) {
                     this.create = create
                     this.expires = expires
-                    this.amount = amount
-                    if (commandsImpl.isNotEmpty())
-                        this.commands = commandsImpl.toDataString()
-                    if (itemStacksImpl.isNotEmpty())
-                        this.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
                 }
             }
+            if (commandsImpl.isNotEmpty())
+                kit.commands = commandsImpl.toDataString()
+            if (itemStacksImpl.isNotEmpty())
+                kit.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
         }
     }
 
@@ -57,6 +50,7 @@ class KitYml(
         for (any in this) {
             temp += "$any;"
         }
+        temp.subSequence(0, temp.length - 1)
         return temp
     }
 
@@ -83,11 +77,10 @@ class KitYml(
                 player.isOp = true
                 try {
                     Bukkit.dispatchCommand(player, playerCommand)
-                    player.isOp = false
                 } catch (_: Exception) {
+                } finally {
                     player.isOp = false
                 }
-                player.isOp = false
             } else {
                 Bukkit.dispatchCommand(player, playerCommand)
             }
@@ -103,11 +96,12 @@ class KitYml(
     override fun serialize(): MutableMap<String, Any> {
         val mutableMapOf = mutableMapOf<String, Any>()
         mutableMapOf["id"] = id
-        mutableMapOf["amount"] = amount
         mutableMapOf["create"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(create)
-        mutableMapOf["expires"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(expires)
-        mutableMapOf["commands"] = commandsImpl
-        mutableMapOf["itemStacks"] = itemStacksImpl.map { ItemUtils.toBase64(it) }.toList()
+        mutableMapOf["expires"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(expire)
+        if (commandsImpl.isNotEmpty())
+            mutableMapOf["commands"] = commandsImpl
+        if (itemStacksImpl.isNotEmpty())
+            mutableMapOf["itemStacks"] = itemStacksImpl.map { ItemUtils.toBase64(it) }.toList()
         return mutableMapOf
     }
 
@@ -115,12 +109,11 @@ class KitYml(
         @JvmStatic
         fun deserialize(args: Map<String, Any>): KitYml? {
             val id = args["id"] as? String ?: return null
-            val count = args["amount"] as? Int ?: return null
             val time =
                 LocalDateTime.parse(args["create"] as? String ?: return null, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             val expires =
                 LocalDateTime.parse(args["expires"] as? String ?: return null, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            val kit = KitYml(id, count, time, expires)
+            val kit = KitYml(id, time, expires)
             args["commands"]?.apply {
                 kit.commandsImpl = (this as? List<String>)?.toMutableList() ?: return@apply
             }

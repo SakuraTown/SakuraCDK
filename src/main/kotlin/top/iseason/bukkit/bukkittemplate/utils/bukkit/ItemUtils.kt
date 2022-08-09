@@ -7,7 +7,7 @@ import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.util.Base64
+import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -73,6 +73,15 @@ object ItemUtils {
     }
 
     /**
+     * 字节转换为ItemStack
+     */
+    fun fromByteArray(bytes: ByteArray): ItemStack {
+        GZIPInputStream(ByteArrayInputStream(bytes)).use { it1 ->
+            BukkitObjectInputStream(it1).use { return it.readObject() as ItemStack }
+        }
+    }
+
+    /**
      * 一组物品转化为字节
      */
     fun toByteArrays(items: Collection<ItemStack>): ByteArray {
@@ -93,7 +102,7 @@ object ItemUtils {
      */
     fun fromByteArrays(bytes: ByteArray): List<ItemStack> {
         GZIPInputStream(ByteArrayInputStream(bytes)).use { it1 ->
-            BukkitObjectInputStream(ByteArrayInputStream(it1.readBytes())).use {
+            BukkitObjectInputStream(it1).use {
                 val mutableListOf = mutableListOf<ItemStack>()
                 val size = it.readInt()
                 for (i in 0 until size) {
@@ -103,15 +112,6 @@ object ItemUtils {
             }
         }
 
-    }
-
-    /**
-     * 字节转换为ItemStack
-     */
-    fun fromByteArray(bytes: ByteArray): ItemStack {
-        GZIPInputStream(ByteArrayInputStream(bytes)).use { it1 ->
-            BukkitObjectInputStream(ByteArrayInputStream(it1.readBytes())).use { return it.readObject() as ItemStack }
-        }
     }
 
 

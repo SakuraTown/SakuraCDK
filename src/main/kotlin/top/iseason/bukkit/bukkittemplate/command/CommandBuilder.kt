@@ -52,10 +52,12 @@ class CommandBuilder(private val commandNode: CommandNode) {
     /**
      * 添加节点
      */
-    fun node(commandNode: CommandNode): CommandBuilder {
+    fun node(commandNode: CommandNode, onScope: (CommandBuilder.() -> Unit)? = null): CommandBuilder {
         this.commandNode.addSubNode(commandNode)
         pluginPermissions.add(commandNode.permission)
-        return CommandBuilder(commandNode)
+        val commandBuilder = CommandBuilder(commandNode)
+        onScope?.invoke(commandBuilder)
+        return commandBuilder
     }
 
     /**

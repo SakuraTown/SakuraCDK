@@ -4,6 +4,8 @@ import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 object Utils {
+    val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
+
     //获取一定时间间隔后的时间，例如 "1Y2M3W4d5h6m7s" 可随意组合
     fun parseTime(str: String): LocalDateTime {
         val compile = Pattern.compile("([0-9]+)([a-zA-Z]+)")
@@ -22,5 +24,16 @@ object Utils {
             }
         }
         return now
+    }
+
+    //将字符串替换为随机字符串
+    fun replaceRandom(cdk: String): String {
+        val cs = cdk.toCharArray()
+        for (i in cs.indices) {
+            if (cs[i] == 'X') {
+                cs[i] = chars.random()
+            }
+        }
+        return String(cs)
     }
 }
