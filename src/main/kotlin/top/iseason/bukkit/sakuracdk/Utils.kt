@@ -7,7 +7,7 @@ object Utils {
     val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
 
     //获取一定时间间隔后的时间，例如 "1Y2M3W4d5h6m7s" 可随意组合
-    fun parseTime(str: String): LocalDateTime {
+    fun parseTimeAfter(str: String): LocalDateTime {
         val compile = Pattern.compile("([0-9]+)([a-zA-Z]+)")
         val matcher = compile.matcher(str)
         var now = LocalDateTime.now()
@@ -21,6 +21,26 @@ object Utils {
                 "Y" -> now = now.plusYears(num)
                 "M" -> now = now.plusMonths(num)
                 "W" -> now = now.plusWeeks(num)
+            }
+        }
+        return now
+    }
+
+    //获取一定时间间隔后的时间，例如 "1Y2M3W4d5h6m7s" 可随意组合
+    fun parseTimeBefore(str: String): LocalDateTime {
+        val compile = Pattern.compile("([0-9]+)([a-zA-Z]+)")
+        val matcher = compile.matcher(str)
+        var now = LocalDateTime.now()
+        while (matcher.find()) {
+            val num = matcher.group(1).toLong()
+            when (matcher.group(2)) {
+                "d" -> now = now.minusDays(num)
+                "h" -> now = now.minusHours(num)
+                "m" -> now = now.minusMinutes(num)
+                "s" -> now = now.minusSeconds(num)
+                "Y" -> now = now.minusYears(num)
+                "M" -> now = now.minusMonths(num)
+                "W" -> now = now.minusWeeks(num)
             }
         }
         return now

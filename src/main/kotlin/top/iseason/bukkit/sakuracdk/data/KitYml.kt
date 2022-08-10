@@ -25,9 +25,7 @@ class KitYml(
 
     //上传数据库
     fun updateDataBase() {
-//        var kit: Kit? = null
         transaction {
-//            addLogger(StdOutSqlLogger)
             var kit = Kit.findById(this@KitYml.id)
             if (kit != null) {
                 kit.create = create
@@ -46,12 +44,13 @@ class KitYml(
     }
 
     private fun Collection<String>.toDataString(): String {
-        var temp = ""
+        val temp = StringBuilder("")
         for (any in this) {
-            temp += "$any;"
+            if (any.isBlank()) continue
+            temp.append(any).append(';')
         }
         temp.subSequence(0, temp.length - 1)
-        return temp
+        return temp.toString()
     }
 
     //将礼包应用玩家

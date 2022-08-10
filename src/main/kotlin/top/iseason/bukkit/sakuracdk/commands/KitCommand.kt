@@ -2,16 +2,13 @@ package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
-import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParamSuggestCache
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.checkAir
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
-import top.iseason.bukkit.sakuracdk.Config
 import top.iseason.bukkit.sakuracdk.Utils
-import top.iseason.bukkit.sakuracdk.data.Kit
 import top.iseason.bukkit.sakuracdk.data.KitYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml
 import java.time.LocalDateTime
@@ -38,7 +35,7 @@ object KitCreateNode : CommandNode(
             val expires = try {
                 LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             } catch (e: Exception) {
-                Utils.parseTime(time)
+                Utils.parseTimeAfter(time)
             }
             val kitYml = KitYml(id, LocalDateTime.now(), expires)
             KitsYml.kits[id] = kitYml
@@ -108,33 +105,5 @@ object KitGiveNode : CommandNode(
             true
         }
         failureMessage = "&cID不存在!"
-    }
-}
-
-object KitDownloadNode : CommandNode(
-    "download",
-    default = PermissionDefault.OP,
-    async = true,
-    description = "从数据库下载kits数据到yml中"
-) {
-    init {
-        onExecute = onExecute@{
-            if (!Config.isConnected) throw ParmaException("&c数据异常，请联系管理员!")
-            try {
-                transaction {
-                    val kits = Kit.all()
-                    KitsYml.kits = hashMapOf()
-                    for (kit in kits) {
-                        KitsYml.kits[kit.id.value] = kit.toKitYml()
-                    }
-                    KitsYml.save()
-                }
-            } catch (e: Throwable) {
-                return@onExecute false
-            }
-            true
-        }
-        successMessage = "&a数据已更新!"
-        failureMessage = "&a数据更新异常!"
     }
 }

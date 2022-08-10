@@ -2,13 +2,14 @@ package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkit.bukkittemplate.config.annotations.Comment
 import top.iseason.bukkit.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkit.bukkittemplate.config.annotations.Key
-import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.debug.warn
-import top.iseason.bukkit.sakuracdk.Config
+import top.iseason.bukkit.sakuracdk.config.Config
 
 @FilePath("kits.yml")
 object KitsYml : SimpleYAMLConfig() {
@@ -28,12 +29,35 @@ object KitsYml : SimpleYAMLConfig() {
             warn("&c数据异常，请联系管理员!")
             return@onLoaded
         }
+        uploadData()
+    }
+
+    fun uploadData() {
         for (kit in kits.values) {
-            try {
-                kit.updateDataBase()
-            } catch (e: Exception) {
-                info("&c更新kit: ${kit.id} 失败!")
-            }
+            kit.updateDataBase()
         }
+    }
+
+    //从数据库下载数据到本地
+    fun downloadData() {
+        try {
+            transaction {
+                val kits = Kit.all()
+                KitsYml.kits = hashMapOf()
+                for (kit in kits) {
+                    KitsYml.kits[kit.id.value] = kit.toKitYml()
+                }
+                save(false)
+            }
+        } catch (e: Throwable) {
+            return
+        }
+    }
+
+    fun updateData() {
+        transaction {
+            Kits.deleteAll()
+        }
+        uploadData()
     }
 }

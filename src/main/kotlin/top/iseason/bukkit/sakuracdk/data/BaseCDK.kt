@@ -12,6 +12,7 @@ abstract class BaseCDK(
     abstract fun toSection(section: ConfigurationSection)
     abstract fun getCDKs(): List<String>
     abstract fun allowRepeat(): Boolean
+    abstract fun upLoadData()
 
     /**
      * 检查是否过期
@@ -26,5 +27,14 @@ abstract class BaseCDK(
             kit.applyPlayer(player)
         }
         return isSuccess
+    }
+
+    fun getKitsString(): String {
+        var temp = StringBuilder()
+        for (kit in kits) {
+            temp.append(kit.id).append(";")
+        }
+        temp.removeSuffix(";")
+        return temp.toString()
     }
 }

@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk
+package top.iseason.bukkit.sakuracdk.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -13,9 +13,8 @@ import top.iseason.bukkit.bukkittemplate.config.annotations.Key
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
 import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.dependency.DependencyDownloader
-import top.iseason.bukkit.sakuracdk.data.CDKsYml
-import top.iseason.bukkit.sakuracdk.data.Kits
-import top.iseason.bukkit.sakuracdk.data.Records
+import top.iseason.bukkit.sakuracdk.SakuraCDK
+import top.iseason.bukkit.sakuracdk.data.*
 import java.io.File
 import java.sql.SQLException
 
@@ -140,7 +139,7 @@ object Config : SimpleYAMLConfig() {
                     SchemaUtils.createSchema(schema)
                     SchemaUtils.setSchema(schema)
                 }
-                SchemaUtils.create(Kits, Records)
+                SchemaUtils.create(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
             }
             isConnected = true
             info("&a数据库链接成功!")

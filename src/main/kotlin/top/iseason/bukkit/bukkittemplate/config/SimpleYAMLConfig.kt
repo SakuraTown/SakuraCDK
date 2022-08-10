@@ -47,7 +47,7 @@ abstract class SimpleYAMLConfig(
     /**
      * 配置文件路径
      */
-    private val configPath = getPath().apply {
+    val configPath = getPath().apply {
         if (!exists()) {
             parentFile.mkdirs()
             createNewFile()

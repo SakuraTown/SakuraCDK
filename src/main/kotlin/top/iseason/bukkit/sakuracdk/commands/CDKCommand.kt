@@ -1,12 +1,15 @@
 package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.permissions.PermissionDefault
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
-import top.iseason.bukkit.sakuracdk.Config
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import top.iseason.bukkit.sakuracdk.Utils
+import top.iseason.bukkit.sakuracdk.config.Config
+import top.iseason.bukkit.sakuracdk.data.CDKs
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -28,9 +31,16 @@ object CDKCreateNode : CommandNode(
             file.parentFile.mkdirs()
             file.createNewFile()
             BufferedWriter(OutputStreamWriter(FileOutputStream(file))).use { bw ->
-                repeat(amount) {
-                    bw.write(Utils.replaceRandom(Config.cdkTemplate))
-                    bw.newLine()
+                transaction {
+                    repeat(amount) {
+                        val replaceRandom = Utils.replaceRandom(Config.cdkTemplate)
+                        bw.write(replaceRandom)
+                        bw.newLine()
+                        CDKs.insert {
+                            it[CDKs.id] = replaceRandom
+                            it[group] = id
+                        }
+                    }
                 }
             }
             true

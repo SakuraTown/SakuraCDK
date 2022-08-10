@@ -11,6 +11,7 @@ import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.utils.toColor
 import top.iseason.bukkit.sakuracdk.commands.cdkAdminCommands
 import top.iseason.bukkit.sakuracdk.commands.userCommand
+import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.data.CDKsYml
 import top.iseason.bukkit.sakuracdk.data.KitYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml

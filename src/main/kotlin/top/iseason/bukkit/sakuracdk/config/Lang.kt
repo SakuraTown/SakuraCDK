@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk
+package top.iseason.bukkit.sakuracdk.config
 
 import org.bukkit.configuration.ConfigurationSection
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig

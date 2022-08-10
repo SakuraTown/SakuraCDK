@@ -18,7 +18,7 @@ class Kit(
     fun toKitYml(): KitYml {
         val kitYml = KitYml(id.value, create, expires)
         if (commands != null) {
-            kitYml.commandsImpl = commands!!.split(";").toMutableList()
+            kitYml.commandsImpl = commands!!.split(";").filter { it.isNotBlank() }.toMutableList()
         }
         if (itemStacks != null) {
             kitYml.itemStacksImpl = ItemUtils.fromByteArrays(itemStacks!!.bytes).toMutableList()
