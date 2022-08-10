@@ -37,7 +37,7 @@ object CDKsYml : SimpleYAMLConfig() {
                 cdkCache[keys] = cdk
             }
         }
-        uploadAll()
+//        uploadAll()
     }
 
     //将CDK数据上传数据库

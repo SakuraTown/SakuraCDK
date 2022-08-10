@@ -29,7 +29,7 @@ object KitsYml : SimpleYAMLConfig() {
             warn("&c数据异常，请联系管理员!")
             return@onLoaded
         }
-        uploadData()
+//        uploadData()
     }
 
     fun uploadData() {
