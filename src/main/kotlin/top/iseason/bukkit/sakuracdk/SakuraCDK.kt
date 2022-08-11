@@ -32,6 +32,8 @@ object SakuraCDK : KotlinPlugin() {
     }
 
     override fun onAsyncEnable() {
+        SakuraCDK.javaPlugin.saveResource("cdk.yml", false)
+        SakuraCDK.javaPlugin.saveResource("kits.yml", false)
         TypeParam(KitYml::class, { "$it 不是一个有效的Kit" }) { KitsYml.kits[it] }
         ConfigurationSerialization.registerClass(KitYml::class.java)
         Config.load(false)

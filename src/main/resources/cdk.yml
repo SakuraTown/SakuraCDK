@@ -1,0 +1,13 @@
+test:
+  type: normal
+  amount: 10
+  expire: '2022-09-10T23:02:32.061'
+  kits:
+    - test
+
+test2:
+  type: random
+  repeat: true
+  expire: '2022-09-10T23:02:32.063'
+  kits:
+    - test
