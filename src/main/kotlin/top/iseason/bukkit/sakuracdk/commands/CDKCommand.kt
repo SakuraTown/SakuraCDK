@@ -74,7 +74,7 @@ object CDKInfoNode : CommandNode(
             val cdk = getParam<String>(0)
             val mutableListOf = mutableListOf<String>()
             transaction {
-                val cdks = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull() ?: throw ParmaException("cdk不存在")
+                val cdks = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull() ?: throw ParmaException("&6cdk不存在")
                 mutableListOf.add("&aCDK: &6${cdk}")
                 val group = cdks[CDKs.group]
                 val type = cdks[CDKs.type]
