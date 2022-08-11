@@ -7,6 +7,8 @@
 * 简单易用
 * 支持数据库 MySQL、MariaDB、SQLite、H2、Oracle、PostgreSQL、SQLServer
 * 发放命令与物品
+* 全程异步运行，主线程0影响 (除了运行礼包命令)
+* 支持热重载
 
 ## 使用方法
 
