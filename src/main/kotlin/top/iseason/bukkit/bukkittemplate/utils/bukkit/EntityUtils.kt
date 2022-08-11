@@ -36,6 +36,7 @@ fun InventoryHolder.giveItems(vararg itemStacks: ItemStack) {
     if (this !is Entity) return
     for (addItem in addItems) {
         if (addItem == null) continue
-        (world.spawnEntity(location, EntityType.DROPPED_ITEM) as Item).itemStack = addItem
+        val item = world.spawnEntity(location, EntityType.DROPPED_ITEM) as Item
+        item.setItemStack(addItem)
     }
 }

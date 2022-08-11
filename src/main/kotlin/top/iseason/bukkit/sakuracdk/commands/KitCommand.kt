@@ -77,7 +77,8 @@ object KitAddItemNode : CommandNode(
     init {
         onExecute = onExecute@{
             val kitYml = getParam<KitYml>(0)
-            val itemInMainHand = (it as Player).inventory.itemInMainHand
+            val inventory = (it as Player).inventory
+            val itemInMainHand = inventory.getItem(inventory.heldItemSlot) ?: throw ParmaException("&6请拿着物品!")
             if (itemInMainHand.type.checkAir()) throw ParmaException("&6请拿着物品!")
             kitYml.itemStacksImpl.add(itemInMainHand)
             KitsYml.save(false)
