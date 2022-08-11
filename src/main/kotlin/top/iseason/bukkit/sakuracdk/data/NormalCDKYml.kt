@@ -2,6 +2,7 @@ package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
@@ -19,15 +20,22 @@ class NormalCDKYml(
         transaction {
             val findById = NormalCDK.findById(this@NormalCDKYml.id)
             if (findById != null) {
-                findById.expire = expire
+                findById.expire = this@NormalCDKYml.expire
                 findById.kits = getKitsString()
-                findById.amount = amount
+                findById.amount = this@NormalCDKYml.amount
                 return@transaction
             }
             NormalCDK.new(this@NormalCDKYml.id) {
-                this.expire = expire
+                this.expire = this@NormalCDKYml.expire
                 this.kits = getKitsString()
-                this.amount = amount
+                this.amount = this@NormalCDKYml.amount
+            }
+            if (!CDKs.has(this@NormalCDKYml.id)) {
+                CDKs.insert {
+                    it[CDKs.id] = this@NormalCDKYml.id
+                    it[CDKs.group] = this@NormalCDKYml.id
+                    it[CDKs.type] = "normal"
+                }
             }
         }
     }
@@ -86,6 +94,8 @@ class NormalCDK(id: EntityID<String>) : StringEntity(id) {
                 kitYmls.add(findById.toKitYml())
             }
         }
-        return NormalCDKYml(id.value, amount, expire, kitYmls)
+        val normalCDKYml = NormalCDKYml(id.value, amount, expire, kitYmls)
+        CDKsYml.cdkCache[normalCDKYml.id] = normalCDKYml
+        return normalCDKYml
     }
 }

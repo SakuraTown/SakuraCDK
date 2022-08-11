@@ -2,6 +2,7 @@ package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.permissions.PermissionDefault
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
@@ -28,6 +29,11 @@ object CDKCreateNode : CommandNode(
             val amount = getParam<Int>(1)
             val file = File(SakuraCDK.javaPlugin.dataFolder, "random${File.separatorChar}${id}.txt")
             if (file.exists()) throw ParmaException("&c文件已存在!")
+            transaction {
+                if (!CDKs.select { CDKs.group eq id }.limit(1).empty()) {
+                    throw ParmaException("&c文件已存在!")
+                }
+            }
             file.parentFile.mkdirs()
             file.createNewFile()
             BufferedWriter(OutputStreamWriter(FileOutputStream(file))).use { bw ->
@@ -38,7 +44,8 @@ object CDKCreateNode : CommandNode(
                         bw.newLine()
                         CDKs.insert {
                             it[CDKs.id] = replaceRandom
-                            it[group] = id
+                            it[CDKs.group] = id
+                            it[CDKs.type] = "random"
                         }
                     }
                 }

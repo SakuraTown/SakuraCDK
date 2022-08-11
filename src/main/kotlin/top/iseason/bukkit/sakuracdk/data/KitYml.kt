@@ -28,12 +28,12 @@ class KitYml(
         transaction {
             var kit = Kit.findById(this@KitYml.id)
             if (kit != null) {
-                kit.create = create
-                kit.expires = expire
+                kit.create = this@KitYml.create
+                kit.expire = this@KitYml.expire
             } else {
                 kit = Kit.new(this@KitYml.id) {
-                    this.create = create
-                    this.expires = expires
+                    this.create = this@KitYml.create
+                    this.expire = this@KitYml.expire
                 }
             }
             if (commandsImpl.isNotEmpty())

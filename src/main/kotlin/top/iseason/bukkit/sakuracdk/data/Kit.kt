@@ -11,12 +11,12 @@ class Kit(
     id: EntityID<String>
 ) : StringEntity(id) {
     var create by Kits.create
-    var expires by Kits.expires
+    var expire by Kits.expire
     var commands by Kits.commands
     var itemStacks by Kits.itemStacks
 
     fun toKitYml(): KitYml {
-        val kitYml = KitYml(id.value, create, expires)
+        val kitYml = KitYml(id.value, create, expire)
         if (commands != null) {
             kitYml.commandsImpl = commands!!.split(";").filter { it.isNotBlank() }.toMutableList()
         }

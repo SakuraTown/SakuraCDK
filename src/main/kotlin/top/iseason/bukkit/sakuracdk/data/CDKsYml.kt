@@ -18,10 +18,8 @@ object CDKsYml : SimpleYAMLConfig() {
 
     //储存所有cdk
     val cdkCache = hashMapOf<String, BaseCDK>()
-    val cdkGroups = mutableListOf<BaseCDK>()
 
     override val onLoaded: (ConfigurationSection.() -> Unit) = {
-        cdkGroups.clear()
         cdkCache.clear()
         for (key in this.getKeys(false)) {
             val section = getConfigurationSection(key) ?: continue
@@ -31,11 +29,7 @@ object CDKsYml : SimpleYAMLConfig() {
                 "random" -> RandomCDKYml.fromSection(key, section)
                 else -> null
             } ?: continue
-            cdkGroups.add(cdk)
-            val cdKs = cdk.getCDKs()
-            for (keys in cdKs) {
-                cdkCache[keys] = cdk
-            }
+            cdkCache[cdk.id] = cdk
         }
 //        uploadAll()
     }
@@ -43,7 +37,7 @@ object CDKsYml : SimpleYAMLConfig() {
     //将CDK数据上传数据库
     fun uploadAll() {
         try {
-            for (cdkGroup in cdkGroups) {
+            for (cdkGroup in cdkCache.values) {
                 cdkGroup.upLoadData()
             }
         } catch (e: Exception) {
@@ -56,12 +50,8 @@ object CDKsYml : SimpleYAMLConfig() {
             NormalCDKs.deleteAll()
             RandomCDKs.deleteAll()
         }
-        try {
-            for (cdkGroup in cdkGroups) {
-                cdkGroup.upLoadData()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        for (cdkGroup in cdkCache.values) {
+            cdkGroup.upLoadData()
         }
     }
 
@@ -117,7 +107,7 @@ object CDKsYml : SimpleYAMLConfig() {
     }
 
     fun onDisable() {
-        for (cdkGroup in cdkGroups) {
+        for (cdkGroup in cdkCache.values) {
             if (cdkGroup is RandomCDKYml) cdkGroup.saveCDK()
         }
     }

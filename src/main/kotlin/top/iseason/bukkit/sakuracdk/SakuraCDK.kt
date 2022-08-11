@@ -8,6 +8,7 @@ import top.iseason.bukkit.bukkittemplate.config.ConfigWatcher
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
 import top.iseason.bukkit.bukkittemplate.debug.info
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils
 import top.iseason.bukkit.bukkittemplate.utils.toColor
 import top.iseason.bukkit.sakuracdk.commands.cdkAdminCommands
 import top.iseason.bukkit.sakuracdk.commands.userCommand
@@ -24,6 +25,7 @@ object SakuraCDK : KotlinPlugin() {
     override fun onEnable() {
 //        SimpleLogger.isDebug = true
         SimpleLogger.prefix = "&a[&6${javaPlugin.description.name}&a]&r ".toColor()
+        MessageUtils.defaultPrefix = SimpleLogger.prefix
         SimpleYAMLConfig.loadMessage = "&7配置文件 &6%s &7已重载!"
         SimpleYAMLConfig.saveMessage = "&7配置文件 &6%s &7已保存!"
         info("&a插件已启用!")

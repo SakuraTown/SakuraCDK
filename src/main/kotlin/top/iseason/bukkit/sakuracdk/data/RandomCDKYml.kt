@@ -3,6 +3,7 @@ package top.iseason.bukkit.sakuracdk.data
 import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,7 +18,7 @@ class RandomCDKYml(
     val group: String,
     expire: LocalDateTime,
     kits: List<KitYml>,
-    val cdks: HashSet<String> = hashSetOf(),
+    private val cdkSet: HashSet<String>
 ) : BaseCDK(group, expire, kits) {
 
     var allowRepeat = false
@@ -26,30 +27,37 @@ class RandomCDKYml(
         transaction {
             val findById = RandomCDK.findById(group)
             if (findById != null) {
-                findById.expire = expire
+                findById.expire = this@RandomCDKYml.expire
                 findById.kits = getKitsString()
-                findById.repeat = allowRepeat
+                findById.repeat = this@RandomCDKYml.allowRepeat
                 return@transaction
             }
             RandomCDK.new(group) {
-                this.expire = expire
+                this.expire = this@RandomCDKYml.expire
                 this.kits = getKitsString()
-                this.repeat = allowRepeat
+                this.repeat = this@RandomCDKYml.allowRepeat
+            }
+            if (!CDKs.has(this@RandomCDKYml.group)) {
+                CDKs.insert {
+                    it[CDKs.id] = this@RandomCDKYml.group
+                    it[CDKs.group] = this@RandomCDKYml.group
+                    it[CDKs.type] = "random"
+                }
             }
         }
     }
 
 
     fun removeCDK(cdk: String) {
-        cdks.remove(cdk)
+        cdkSet.remove(cdk)
         transaction {
             CDKs.deleteWhere { CDKs.id eq cdk }
         }
     }
 
     fun saveCDK() {
-        if (cdks.isEmpty()) return
-        saveTxt(group, cdks)
+        if (cdkSet.isEmpty()) return
+        saveTxt(group, cdkSet)
     }
 
     override fun toSection(section: ConfigurationSection) {
@@ -59,7 +67,7 @@ class RandomCDKYml(
         section["kits"] = kits.map { it.id }
     }
 
-    override fun getCDKs(): List<String> = cdks.toList()
+    override fun getCDKs(): List<String> = cdkSet.toList()
     override fun allowRepeat(): Boolean = allowRepeat
 
     companion object {
@@ -136,6 +144,7 @@ class RandomCDK(id: EntityID<String>) : StringEntity(id) {
         }
         val randomCDKYml = RandomCDKYml(group, expire, kitYmls, cdks)
         randomCDKYml.allowRepeat = repeat
+        CDKsYml.cdkCache[randomCDKYml.id] = randomCDKYml
         return randomCDKYml
     }
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 object Kits : StringIdTable() {
     val create = datetime("create").default(LocalDateTime.now())
-    val expires = datetime("expires").default(LocalDateTime.now())
+    val expire = datetime("expires").default(LocalDateTime.now())
     val commands = text("commands").nullable()
     val itemStacks = blob("itemStacks").nullable()
 

@@ -39,17 +39,21 @@ fun cdkAdminCommands() {
             params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
         ) {
             onExecute {
-                val option = getOptionalParam<String>(0)
+                val option = getOptionalParam<String>(0) ?: "all"
                 it.sendColorMessage("&6开始下载数据...")
-                when (option) {
-                    "random" -> CDKs.downloadRandomData()
-                    "cdk" -> CDKsYml.downloadAll()
-                    "kit" -> KitsYml.downloadData()
-                    else -> {
-                        CDKs.downloadRandomData()
-                        CDKsYml.downloadAll()
-                        KitsYml.downloadData()
+                try {
+                    when (option) {
+                        "random" -> CDKs.downloadRandomData()
+                        "cdk" -> CDKsYml.downloadAll()
+                        "kit" -> KitsYml.downloadData()
+                        else -> {
+                            CDKs.downloadRandomData()
+                            CDKsYml.downloadAll()
+                            KitsYml.downloadData()
+                        }
                     }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                 }
                 it.sendColorMessage("&a数据 &6${option} &a下载完成!")
                 true
@@ -63,24 +67,28 @@ fun cdkAdminCommands() {
             params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
         ) {
             onExecute {
-                val option = getOptionalParam<String>(0)
+                val option = getOptionalParam<String>(0) ?: "all"
                 it.sendColorMessage("&6开始上传数据...")
-                when (option) {
-                    "random" -> {
-                        CDKsYml.onDisable()
-                        CDKsYml.updateRandomData()
-                    }
+                try {
+                    when (option) {
+                        "random" -> {
+                            CDKsYml.onDisable()
+                            CDKsYml.updateRandomData()
+                        }
 
-                    "cdk" -> CDKsYml.updateAllData()
-                    "kit" -> KitsYml.updateData()
-                    else -> {
-                        CDKsYml.onDisable()
-                        CDKsYml.updateRandomData()
-                        CDKsYml.updateAllData()
-                        KitsYml.updateData()
+                        "cdk" -> CDKsYml.updateAllData()
+                        "kit" -> KitsYml.updateData()
+                        else -> {
+                            CDKsYml.onDisable()
+                            CDKsYml.updateRandomData()
+                            CDKsYml.updateAllData()
+                            KitsYml.updateData()
+                        }
                     }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                 }
-                it.sendColorMessage("&a数据上传完成!")
+                it.sendColorMessage("&a数据 &6${option} &6上传完成!")
                 true
             }
         }
@@ -88,7 +96,7 @@ fun cdkAdminCommands() {
             "delete",
             default = PermissionDefault.OP,
             async = true,
-            description = "删除一定时间外的历史记录",
+            description = "删除一定时间外的礼包领取记录",
             params = arrayOf(Param("[time]", listOf("1d", "1w", "all")))
         ) {
             onExecute {

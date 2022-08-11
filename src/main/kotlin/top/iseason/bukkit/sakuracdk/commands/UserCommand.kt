@@ -3,6 +3,7 @@ package top.iseason.bukkit.sakuracdk.commands
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -33,7 +34,7 @@ fun userCommand() {
             var cdkYml: BaseCDK? = null
             val player = it as Player
             val uniqueId = player.uniqueId
-            var groupTemp: String? = null
+            var groupTemp: String?
             transaction {
                 val cdkResult = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull()
                     ?: throw ParmaException("&cCDK不存在或已过期!")
@@ -51,10 +52,16 @@ fun userCommand() {
 
                     else -> throw ParmaException("&cCDK不存在或已过期!")
                 }
+                if (cdkYml!!.checkExpire()) throw ParmaException("&cCDK已过期!")
                 //检查重复领取
                 if (!cdkYml!!.allowRepeat()) {
                     if (!Records.select { Records.cdk eq cdk and (Records.uid eq uniqueId) }.limit(1).empty()) {
                         throw ParmaException("&c你已经领取过该礼包了")
+                    }
+                    if (cdkYml is NormalCDKYml) {
+                        val exist = Records.slice(Records.id.count()).select { Records.group eq group }
+                            .first()[Records.id.count()]
+                        if (exist > (cdkYml as NormalCDKYml).amount) throw ParmaException("&c礼包已领完!")
                     }
                 }
                 Record.new {
@@ -70,15 +77,14 @@ fun userCommand() {
             }
             if (cdkYml == null) throw ParmaException("&cCDK不存在或已过期!")
             //发放礼品
-            var success = false
             submit {
                 if (!cdkYml!!.applyPlayer(player)) {
                     player.sendColorMessage("&c礼包已过期!")
-                    success = false
-                } else success = true
+                } else {
+                    player.sendColorMessage("&aCDK兑换成功!")
+                }
             }
-            success
+            true
         }
-        onSuccess("&a兑换成功!")
     }
 }

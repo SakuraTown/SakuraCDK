@@ -19,6 +19,7 @@ abstract class BaseCDK(
      * @return true 表示过期
      */
     fun checkExpire(): Boolean = LocalDateTime.now().isAfter(expire)
+
     fun applyPlayer(player: Player): Boolean {
         var isSuccess = false
         for (kit in kits) {
