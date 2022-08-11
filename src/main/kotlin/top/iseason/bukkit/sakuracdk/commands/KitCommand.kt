@@ -7,6 +7,7 @@ import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParamSuggestCache
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.checkAir
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.getHeldItem
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.data.KitYml
@@ -77,8 +78,7 @@ object KitAddItemNode : CommandNode(
     init {
         onExecute = onExecute@{
             val kitYml = getParam<KitYml>(0)
-            val inventory = (it as Player).inventory
-            val itemInMainHand = inventory.getItem(inventory.heldItemSlot) ?: throw ParmaException("&6请拿着物品!")
+            val itemInMainHand = (it as Player).inventory.getHeldItem() ?: throw ParmaException("&6请拿着物品!")
             if (itemInMainHand.type.checkAir()) throw ParmaException("&6请拿着物品!")
             kitYml.itemStacksImpl.add(itemInMainHand)
             KitsYml.save(false)
