@@ -9,9 +9,16 @@ import top.iseason.bukkit.bukkittemplate.debug.info
 @Key
 @FilePath("lang.yml")
 object Lang : SimpleYAMLConfig(updateNotify = false) {
-    var hello_message = "你好 世界"
-    var welcome_message = "欢迎来到我的世界"
-    var quit_message = "玩家 %player% 已退出了服务器"
+
+    var command__user_send_too_fast = "&c你发送的太快了，请稍后再试!"
+    var command__user_database_closed = "&c数据异常，请联系管理员!"
+    var command__user_cdk_unexist = "&cCDK不存在或已过期!"
+    var command__user_cdk_is_expire = "&cCDK已过期!"
+    var command__user_has_accepted = "&6你已经领取过该礼包了"
+    var command__user_normal_brought_out = "&c礼包已领完!"
+    var command__user_kit_is_expire = "&c礼包已过期!"
+    var command__user_success = "&aCDK兑换成功!"
+
     override val onLoaded: (ConfigurationSection.() -> Unit) = {
         info("语言文件已重载")
     }

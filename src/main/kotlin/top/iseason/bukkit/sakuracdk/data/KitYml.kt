@@ -44,12 +44,12 @@ class KitYml(
     }
 
     private fun Collection<String>.toDataString(): String {
-        val temp = StringBuilder("")
+        val temp = StringBuilder()
         for (any in this) {
             if (any.isBlank()) continue
             temp.append(any).append(';')
         }
-        temp.subSequence(0, temp.length - 1)
+        temp.deleteCharAt(temp.length - 1)
         return temp.toString()
     }
 

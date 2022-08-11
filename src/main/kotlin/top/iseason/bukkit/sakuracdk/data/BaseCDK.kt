@@ -31,11 +31,11 @@ abstract class BaseCDK(
     }
 
     fun getKitsString(): String {
-        var temp = StringBuilder()
+        val temp = StringBuilder()
         for (kit in kits) {
-            temp.append(kit.id).append(";")
+            temp.append(kit.id).append(';')
         }
-        temp.removeSuffix(";")
+        temp.deleteCharAt(temp.length - 1)
         return temp.toString()
     }
 }

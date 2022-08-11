@@ -109,6 +109,7 @@ fun cdkAdminCommands() {
                 true
             }
         }
+        node(CDKInfoNode)
         node(KitNode) {
             node(KitCreateNode)
             node(KitDeleteNode)
