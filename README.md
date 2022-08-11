@@ -19,7 +19,9 @@
 **数据库**
 
 插件默认使用H2 数据库，
-更多信息请在 config.yml中修改
+
+更多信息请在`config.yml`中修改
+
 所有配置自动重载，无需使用命令重载
 
 **先创建 kit**
@@ -100,15 +102,19 @@ test2:
 
 **3. 完成配置**
 
-由于跨服支持，本地修改的数据不会立即生效，需要使用
-命令: /cdkadmin update <type>  将数据同步至数据库
-其中 type:
-为 all 时上传所有数据
-为 cdk 时上传cdk.yml数据
-为 kit 时上传kits.yml数据
-为 random 时上传random文件夹下所有数据
+由于跨服支持，本地修改的数据不会立即生效
 
-命令 /cdkadmin download <type>  将数据库的数据下载到本地
+需要使用命令: `/cdkadmin update <type> ` 将数据同步至数据库
+
+其中 type:
+
+* 为 `all` 时上传所有数据
+* 为 `cdk` 时上传cdk.yml数据
+* 为 `kit` 时上传kits.yml数据
+* 为 `random` 时上传random文件夹下所有数据
+
+命令` /cdkadmin download <type>  `将数据库的数据下载到本地
+
 type同以上
 
 ## 用户使用
@@ -117,12 +123,14 @@ type同以上
 
 ## 其他
 
-命令可以通过输入/cdkadmin 来查看更多管理命令
+命令可以通过输入`/cdkadmin `来查看更多管理命令
+
 玩家命令只有/cdk 一条
 当命令冲突时可以使用
-/sakuracdk 或 /cdks
+`/sakuracdk` 或 `/cdks`
 
 ## 命令权限
 
 命令权限为sakuracdk.节点名称
-比如/cdkadmin kit addItem 的权限为sakuracdk.cdkadmin.kit.addItem
+
+比如`/cdkadmin kit addItem` 的权限为`sakuracdk.cdkadmin.kit.addItem`
