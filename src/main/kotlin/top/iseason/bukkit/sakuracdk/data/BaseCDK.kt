@@ -31,6 +31,7 @@ abstract class BaseCDK(
     }
 
     fun getKitsString(): String {
+        if (kits.isEmpty()) return ""
         val temp = StringBuilder()
         for (kit in kits) {
             temp.append(kit.id).append(';')

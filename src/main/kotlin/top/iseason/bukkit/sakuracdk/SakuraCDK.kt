@@ -13,9 +13,8 @@ import top.iseason.bukkit.bukkittemplate.utils.toColor
 import top.iseason.bukkit.sakuracdk.commands.cdkAdminCommands
 import top.iseason.bukkit.sakuracdk.commands.userCommand
 import top.iseason.bukkit.sakuracdk.config.Config
-import top.iseason.bukkit.sakuracdk.data.CDKsYml
-import top.iseason.bukkit.sakuracdk.data.KitYml
-import top.iseason.bukkit.sakuracdk.data.KitsYml
+import top.iseason.bukkit.sakuracdk.config.DatabaseConfig
+import top.iseason.bukkit.sakuracdk.data.*
 
 object SakuraCDK : KotlinPlugin() {
 
@@ -34,10 +33,11 @@ object SakuraCDK : KotlinPlugin() {
     override fun onAsyncEnable() {
         SakuraCDK.javaPlugin.saveResource("cdk.yml", false)
         SakuraCDK.javaPlugin.saveResource("kits.yml", false)
-        TypeParam(KitYml::class, { "$it 不是一个有效的Kit" }) { KitsYml.kits[it] }
         ConfigurationSerialization.registerClass(KitYml::class.java)
+        DatabaseConfig.load(false)
+        DatabaseConfig.initTables(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
+        TypeParam(KitYml::class, { "$it 不是一个有效的Kit" }) { KitsYml.kits[it] }
         Config.load(false)
-        Config.reload()
         KitsYml.load(false)
         CDKsYml.load(false)
         userCommand()
@@ -47,7 +47,7 @@ object SakuraCDK : KotlinPlugin() {
     }
 
     override fun onDisable() {
-        Config.closeDB()
+        DatabaseConfig.closeDB()
         CDKsYml.onDisable()
         //如果使用命令模块，取消注释
         CommandBuilder.onDisable()

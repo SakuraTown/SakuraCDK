@@ -13,7 +13,7 @@ import top.iseason.bukkit.bukkittemplate.command.commandRoot
 import top.iseason.bukkit.bukkittemplate.utils.EasyCoolDown
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
 import top.iseason.bukkit.bukkittemplate.utils.submit
-import top.iseason.bukkit.sakuracdk.config.Config
+import top.iseason.bukkit.sakuracdk.config.DatabaseConfig
 import top.iseason.bukkit.sakuracdk.config.Lang
 import top.iseason.bukkit.sakuracdk.data.*
 import java.time.LocalDateTime
@@ -30,7 +30,7 @@ fun userCommand() {
     ) {
         onExecute {
             if (EasyCoolDown.check(it, 1000)) throw ParmaException(Lang.command__user_send_too_fast)
-            if (!Config.isConnected) throw ParmaException(Lang.command__user_database_closed)
+            if (!DatabaseConfig.isConnected) throw ParmaException(Lang.command__user_database_closed)
             val cdk = getParam<String>(0).trim()
             var cdkYml: BaseCDK? = null
             val player = it as Player

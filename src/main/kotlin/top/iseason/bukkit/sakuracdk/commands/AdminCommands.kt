@@ -7,7 +7,6 @@ import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.commandRoot
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
 import top.iseason.bukkit.sakuracdk.Utils
-import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.data.CDKs
 import top.iseason.bukkit.sakuracdk.data.CDKsYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml
@@ -26,7 +25,6 @@ fun cdkAdminCommands() {
     ) {
         node("reload", default = PermissionDefault.OP, async = true, description = "重载配置") {
             onExecute {
-                Config.reload()
                 KitsYml.load()
                 true
             }
@@ -88,7 +86,7 @@ fun cdkAdminCommands() {
                 } catch (e: Throwable) {
                     e.printStackTrace()
                 }
-                it.sendColorMessage("&a数据 &6${option} &6上传完成!")
+                it.sendColorMessage("&a数据 &6${option} &a上传完成!")
                 true
             }
         }

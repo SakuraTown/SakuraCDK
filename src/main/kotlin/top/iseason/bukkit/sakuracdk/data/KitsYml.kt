@@ -9,7 +9,7 @@ import top.iseason.bukkit.bukkittemplate.config.annotations.Comment
 import top.iseason.bukkit.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkit.bukkittemplate.config.annotations.Key
 import top.iseason.bukkit.bukkittemplate.debug.warn
-import top.iseason.bukkit.sakuracdk.config.Config
+import top.iseason.bukkit.sakuracdk.config.DatabaseConfig
 
 @FilePath("kits.yml")
 object KitsYml : SimpleYAMLConfig() {
@@ -25,7 +25,7 @@ object KitsYml : SimpleYAMLConfig() {
 
     override val onLoaded: (ConfigurationSection.() -> Unit) = onLoaded@{
         isAutoUpdate = auto_Update
-        if (!Config.isConnected) {
+        if (!DatabaseConfig.isConnected) {
             warn("&c数据异常，请联系管理员!")
             return@onLoaded
         }
