@@ -29,17 +29,18 @@ object SakuraCDK : KotlinPlugin() {
     override fun onAsyncEnable() {
         SakuraCDK.javaPlugin.saveResource("cdk.yml", false)
         SakuraCDK.javaPlugin.saveResource("kits.yml", false)
+        Config.load(false)
         ConfigurationSerialization.registerClass(KitYml::class.java)
         DatabaseConfig.load(false)
         DatabaseConfig.initTables(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
         TypeParam(KitYml::class, { "$it 不是一个有效的Kit" }) { KitsYml.kits[it] }
-        Config.load(false)
         KitsYml.load(false)
         CDKsYml.load(false)
         userCommand()
         cdkAdminCommands()
         //如果使用命令模块，取消注释
         CommandBuilder.updateCommands()
+
     }
 
     override fun onDisable() {

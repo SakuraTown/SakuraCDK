@@ -1,7 +1,7 @@
 package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.Bukkit
-import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -12,6 +12,7 @@ import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toBase64
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toByteArray
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toSection
+import top.iseason.bukkit.sakuracdk.config.Config
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -104,7 +105,7 @@ class KitYml(
         if (commandsImpl.isNotEmpty())
             mutableMapOf["commands"] = commandsImpl
         if (itemStacksImpl.isNotEmpty()) {
-            if (KitsYml.enciphered_data)
+            if (Config.enciphered)
                 mutableMapOf["itemStacks"] = itemStacksImpl.map { it.toBase64() }.toList()
             else mutableMapOf["itemStacks"] = itemStacksImpl.toSection()
         }
@@ -124,7 +125,7 @@ class KitYml(
                 kit.commandsImpl = (this as? List<String>)?.toMutableList() ?: return@apply
             }
             val any = args["itemStacks"] ?: return kit
-            if (KitsYml.enciphered_data) {
+            if (Config.enciphered) {
                 any.apply {
                     val items = (this as? List<String>)?.toMutableList() ?: return@apply
                     kit.itemStacksImpl = items.mapNotNull {
@@ -136,10 +137,11 @@ class KitYml(
                     }.toMutableList()
                 }
             } else {
-                println(any.javaClass)
-                kit.itemStacksImpl =
-                    (any as? List<ConfigurationSection>)?.mapNotNull { ItemUtils.fromSection(it, true) }
-                        ?.toMutableList() ?: mutableListOf()
+                val yamlConfiguration = YamlConfiguration()
+                val list = any as? List<Map<*, *>> ?: return kit
+                kit.itemStacksImpl = list.mapNotNull {
+                    ItemUtils.fromSection(yamlConfiguration.createSection("1", it), true)
+                }.toMutableList()
             }
             return kit
         }

@@ -40,6 +40,15 @@ object KitCreateNode : CommandNode(
             }
             val kitYml = KitYml(id, LocalDateTime.now(), expires)
             KitsYml.kits[id] = kitYml
+            val player = it as? Player
+            if (player != null) {
+                player.onItemInput(async = true) { inv ->
+                    kitYml.itemStacksImpl = inv.filterNotNull().toMutableList()
+                    KitsYml.save(false)
+                    it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
+                }
+                return@onExecute true
+            }
             KitsYml.save(false)
             it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
             true
@@ -68,8 +77,8 @@ object KitDeleteNode : CommandNode(
 }
 
 object KitAddItemNode : CommandNode(
-    "addItem", async = true,
-    description = "给礼包添加手上物品",
+    "edit", async = true,
+    description = "编辑礼包物品",
     isPlayerOnly = true,
     params = arrayOf(
         Param("[id]", suggestRuntime = KitsYml.suggestKits)

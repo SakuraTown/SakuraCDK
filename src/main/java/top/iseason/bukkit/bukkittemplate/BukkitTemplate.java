@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarFile;
 
 public class BukkitTemplate extends JavaPlugin {
@@ -25,7 +26,7 @@ public class BukkitTemplate extends JavaPlugin {
     public BukkitTemplate() {
         if (plugin == null) plugin = this;
         //防止卡主线程
-        new Thread(() -> {
+        CompletableFuture.runAsync(() -> {
             DependencyManager.parsePluginYml();
             classes = loadClass();
             ktPlugin = findInstance();
@@ -34,7 +35,7 @@ public class BukkitTemplate extends JavaPlugin {
             plugin.setEnabled(true);
             Bukkit.getScheduler().runTask(plugin, () -> plugin.onEnabled());
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.onAsyncEnabled());
-        }).start();
+        });
     }
 
 
@@ -106,11 +107,7 @@ public class BukkitTemplate extends JavaPlugin {
                 } catch (ClassNotFoundException e) {
                     return;
                 }
-//                if (SimpleYAMLConfig.class.isAssignableFrom(aClass)) {
-//                    classes.add(aClass);
-//                    return;
-//                }
-                if (KotlinPlugin.class.isAssignableFrom(aClass) && !KotlinPlugin.class.getName().equals(aClass.getName())) {
+                if (KotlinPlugin.class.isAssignableFrom(aClass) && KotlinPlugin.class != aClass) {
                     classes.add(aClass);
                 }
             });
@@ -156,6 +153,7 @@ public class BukkitTemplate extends JavaPlugin {
         ktPlugin.onDisable();
         Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
+        AutoDisable.disableAll();
     }
 
 }

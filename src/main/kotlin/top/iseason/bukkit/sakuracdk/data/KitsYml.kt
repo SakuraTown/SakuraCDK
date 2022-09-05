@@ -16,12 +16,7 @@ object KitsYml : SimpleYAMLConfig() {
 
     @Key
     @Comment("是否自动更新")
-    var auto_Update = true
-
-    //加密数据
-    @Key
-    @Comment("是否压缩加密物品，压缩完无法直接编辑，只能从命令修改")
-    var enciphered_data = false
+    var auto_update = true
 
     @Key
     var kits = hashMapOf<String, KitYml>()
@@ -29,7 +24,7 @@ object KitsYml : SimpleYAMLConfig() {
     val suggestKits: (CommandSender.() -> Collection<String>) = { kits.keys }
 
     override val onLoaded: (ConfigurationSection.() -> Unit) = onLoaded@{
-        isAutoUpdate = auto_Update
+        isAutoUpdate = auto_update
         if (!DatabaseConfig.isConnected) {
             warn("&c数据异常，请联系管理员!")
             return@onLoaded

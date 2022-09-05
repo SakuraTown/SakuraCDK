@@ -7,10 +7,10 @@ import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
+import top.iseason.bukkit.bukkittemplate.BukkitTemplate
 import top.iseason.bukkit.bukkittemplate.utils.Submitter
 import top.iseason.bukkit.bukkittemplate.utils.submit
 import top.iseason.bukkit.bukkittemplate.utils.toColor
-import top.iseason.bukkit.sakuracdk.SakuraCDK.register
 
 object IOUtils {
     /**
@@ -21,7 +21,9 @@ object IOUtils {
         async: Boolean = false,
         onFinish: (Inventory) -> Unit
     ) {
-        openInventory(inv)
+        submit {
+            openInventory(inv)
+        }
         var submit: Submitter? = null
         val listener = object : Listener {
             @EventHandler
@@ -44,5 +46,12 @@ object IOUtils {
                 HandlerList.unregisterAll(listener)
             }
         }
+    }
+
+    /**
+     * 快速注册监听器
+     */
+    fun Listener.register() {
+        Bukkit.getPluginManager().registerEvents(this, BukkitTemplate.getPlugin())
     }
 }
