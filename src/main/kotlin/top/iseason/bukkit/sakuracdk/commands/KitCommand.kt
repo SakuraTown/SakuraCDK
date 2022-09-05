@@ -1,14 +1,14 @@
 package top.iseason.bukkit.sakuracdk.commands
 
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParamSuggestCache
-import top.iseason.bukkit.bukkittemplate.command.ParmaException
-import top.iseason.bukkit.bukkittemplate.utils.bukkit.checkAir
-import top.iseason.bukkit.bukkittemplate.utils.bukkit.getHeldItem
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.IOUtils.onItemInput
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
+import top.iseason.bukkit.bukkittemplate.utils.toColor
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.data.KitYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml
@@ -76,13 +76,18 @@ object KitAddItemNode : CommandNode(
     )
 ) {
     init {
-        onExecute = onExecute@{
+        onExecute = onExecute@{ sender ->
+            val player = sender as Player
             val kitYml = getParam<KitYml>(0)
-            val itemInMainHand = (it as Player).inventory.getHeldItem() ?: throw ParmaException("&6请拿着物品!")
-            if (itemInMainHand.type.checkAir()) throw ParmaException("&6请拿着物品!")
-            kitYml.itemStacksImpl.add(itemInMainHand)
-            KitsYml.save(false)
-            it.sendColorMessage("&6物品添加成功")
+            val createInventory = Bukkit.createInventory(null, 54, "&a请输入物品".toColor())
+            kitYml.itemStacksImpl.forEach {
+                createInventory.addItem(it)
+            }
+            player.onItemInput(createInventory, true) {
+                kitYml.itemStacksImpl = createInventory.filterNotNull().toMutableList()
+                KitsYml.save(false)
+                sender.sendColorMessage("&6物品添加成功")
+            }
             true
         }
         failureMessage = "&cID不存在!"

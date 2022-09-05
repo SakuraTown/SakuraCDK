@@ -15,6 +15,7 @@ buildscript {
         classpath("com.guardsquare:proguard-gradle:7.2.2")
     }
 }
+
 // 插件名称，请在gradle.properties 修改
 val pluginName: String by project
 //包名，请在gradle.properties 修改
@@ -29,7 +30,11 @@ val version: String by project
 // shadowJar 版本 ，请在gradle.properties 修改
 val shadowJar: ShadowJar by tasks
 // exposed 数据库框架版本，请在gradle.properties 修改
+
 val exposedVersion: String by project
+val obfuscated: String by project
+val shrink: String by project
+
 repositories {
 //    阿里的服务器速度快一点
     maven {
@@ -46,7 +51,10 @@ repositories {
         name = "jitpack"
         url = uri("https://jitpack.io")
     }
-
+    maven {
+        name = "CodeMC"
+        url = uri("https://repo.codemc.org/repository/maven-public")
+    }
     mavenLocal()
 }
 
@@ -65,15 +73,18 @@ dependencies {
     compileOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     compileOnly("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     compileOnly("com.zaxxer:HikariCP:4.0.3")
+
     implementation("org.bstats:bstats-bukkit:3.0.0")
-    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+    implementation("io.github.bananapuncher714:nbteditor:7.18.3")
+    compileOnly("org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT")
 
 }
-
 
 tasks {
     shadowJar {
         relocate("top.iseason.bukkit.bukkittemplate", "$groupS.libs.core")
+        relocate("org.bstats", "$groupS.libs.bstats")
+        relocate("io.github.bananapuncher714.nbteditor", "$groupS.libs.nbteditor")
     }
     build {
         dependsOn("buildPlugin")
@@ -108,17 +119,15 @@ tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
     group = "minecraft"
     verbose()
     injars(tasks.named("shadowJar"))
-    //是否混淆，注销掉启用混淆
-    val obfuscated = getProperties("obfuscated") == "true"
-    val shrink = getProperties("shrink") == "true"
-    if (!obfuscated) {
+    if (obfuscated != "true") {
         dontobfuscate()
     }
-    if (!shrink) {
+    if (shrink != "true") {
         dontshrink()
     }
     optimizationpasses(5)
     dontwarn()
+    //添加运行环境
     val javaHome = System.getProperty("java.home")
     if (JavaVersion.current() < JavaVersion.toVersion(9)) {
         libraryjars("$javaHome/lib/rt.jar")
@@ -131,19 +140,25 @@ tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
             "$javaHome/jmods/java.base.jmod"
         )
     }
-    val allowObf = mapOf("allowobfuscation" to true)
     libraryjars(configurations.compileClasspath.get().files)
+    //启用混淆的选项
+    val allowObf = mapOf("allowobfuscation" to true)
+    //class规则
     keep("class $groupS.libs.core.BukkitTemplate {}")
+    keep(allowObf, "class $groupS.libs.core.utils.MessageUtilsKt {*;}")
     keep(allowObf, "class * implements $groupS.libs.core.KotlinPlugin {*;}")
     keepclassmembers("class * extends $groupS.libs.core.config.SimpleYAMLConfig {*;}")
+    keepclassmembers("class * implements $groupS.libs.core.ui.container.BaseUI {*;}")
     keepclassmembers(allowObf, "class * implements org.bukkit.event.Listener {*;}")
-    keep(allowObf, "class $groupS.libs.core.utils.MessageUtilsKt {*;}")
-    keepclassmembers("class * extends org.jetbrains.exposed.dao.Entity {*;}")
-    keepclassmembers("class * implements org.bukkit.configuration.serialization.ConfigurationSerializable {*;}")
+    keepclassmembers(allowObf, "class * implements org.jetbrains.exposed.dao.id.IdTable {*;}")
+    keepclassmembers(
+        allowObf,
+        "class * implements org.bukkit.configuration.serialization.ConfigurationSerializable {*;}"
+    )
     keepattributes("Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod")
     keepkotlinmetadata()
     repackageclasses()
-    if (obfuscated)
+    if (obfuscated == "true")
         outjars(File(jarOutputFile, "${project.name}-${project.version}-obfuscated.jar"))
     else
         outjars(File(jarOutputFile, "${project.name}-${project.version}.jar"))

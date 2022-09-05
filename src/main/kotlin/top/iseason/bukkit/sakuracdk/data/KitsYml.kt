@@ -4,12 +4,12 @@ import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkit.bukkittemplate.config.annotations.Comment
 import top.iseason.bukkit.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkit.bukkittemplate.config.annotations.Key
 import top.iseason.bukkit.bukkittemplate.debug.warn
-import top.iseason.bukkit.sakuracdk.config.DatabaseConfig
 
 @FilePath("kits.yml")
 object KitsYml : SimpleYAMLConfig() {
@@ -17,6 +17,11 @@ object KitsYml : SimpleYAMLConfig() {
     @Key
     @Comment("是否自动更新")
     var auto_Update = true
+
+    //加密数据
+    @Key
+    @Comment("是否压缩加密物品，压缩完无法直接编辑，只能从命令修改")
+    var enciphered_data = false
 
     @Key
     var kits = hashMapOf<String, KitYml>()

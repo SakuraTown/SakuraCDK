@@ -1,13 +1,17 @@
 package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.Bukkit
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.EntityUtils.giveItems
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils
-import top.iseason.bukkit.bukkittemplate.utils.bukkit.giveItems
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toBase64
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toByteArray
+import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toSection
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -39,7 +43,7 @@ class KitYml(
             if (commandsImpl.isNotEmpty())
                 kit.commands = commandsImpl.toDataString()
             if (itemStacksImpl.isNotEmpty())
-                kit.itemStacks = ExposedBlob(ItemUtils.toByteArrays(itemStacksImpl))
+                kit.itemStacks = ExposedBlob(itemStacksImpl.toByteArray())
         }
     }
 
@@ -99,8 +103,11 @@ class KitYml(
         mutableMapOf["expires"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(expire)
         if (commandsImpl.isNotEmpty())
             mutableMapOf["commands"] = commandsImpl
-        if (itemStacksImpl.isNotEmpty())
-            mutableMapOf["itemStacks"] = itemStacksImpl.map { ItemUtils.toBase64(it) }.toList()
+        if (itemStacksImpl.isNotEmpty()) {
+            if (KitsYml.enciphered_data)
+                mutableMapOf["itemStacks"] = itemStacksImpl.map { it.toBase64() }.toList()
+            else mutableMapOf["itemStacks"] = itemStacksImpl.toSection()
+        }
         return mutableMapOf
     }
 
@@ -116,15 +123,23 @@ class KitYml(
             args["commands"]?.apply {
                 kit.commandsImpl = (this as? List<String>)?.toMutableList() ?: return@apply
             }
-            args["itemStacks"]?.apply {
-                val items = (this as? List<String>)?.toMutableList() ?: return@apply
-                kit.itemStacksImpl = items.mapNotNull {
-                    try {
-                        ItemUtils.fromBase64(it)
-                    } catch (e: Exception) {
-                        null
-                    }
-                }.toMutableList()
+            val any = args["itemStacks"] ?: return kit
+            if (KitsYml.enciphered_data) {
+                any.apply {
+                    val items = (this as? List<String>)?.toMutableList() ?: return@apply
+                    kit.itemStacksImpl = items.mapNotNull {
+                        try {
+                            ItemUtils.fromBase64ToItemStack(it)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }.toMutableList()
+                }
+            } else {
+                println(any.javaClass)
+                kit.itemStacksImpl =
+                    (any as? List<ConfigurationSection>)?.mapNotNull { ItemUtils.fromSection(it, true) }
+                        ?.toMutableList() ?: mutableListOf()
             }
             return kit
         }

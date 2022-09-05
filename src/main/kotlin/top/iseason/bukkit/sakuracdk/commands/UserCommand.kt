@@ -10,10 +10,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
 import top.iseason.bukkit.bukkittemplate.command.commandRoot
+import top.iseason.bukkit.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkit.bukkittemplate.utils.EasyCoolDown
 import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
 import top.iseason.bukkit.bukkittemplate.utils.submit
-import top.iseason.bukkit.sakuracdk.config.DatabaseConfig
 import top.iseason.bukkit.sakuracdk.config.Lang
 import top.iseason.bukkit.sakuracdk.data.*
 import java.time.LocalDateTime
