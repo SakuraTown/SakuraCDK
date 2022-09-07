@@ -10,9 +10,9 @@ import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import top.iseason.bukkit.bukkittemplate.BukkitTemplate
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessage
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessages
 import top.iseason.bukkit.bukkittemplate.utils.WeakCoolDown
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessages
 import top.iseason.bukkit.bukkittemplate.utils.submit
 import java.util.*
 
@@ -25,31 +25,31 @@ open class CommandNode(
     /**
      * 节点别名
      */
-    val alias: Array<String>? = null,
+    var alias: Array<String>? = null,
     /**
      * 描述
      */
-    val description: String? = null,
+    var description: String? = null,
     /**
      * 默认执行权限
      */
-    private val default: PermissionDefault = PermissionDefault.TRUE,
+    var default: PermissionDefault = PermissionDefault.TRUE,
     /**
      * 是否异步执行
      */
-    private val async: Boolean = false,
+    var async: Boolean = false,
     /**
      * 参数列表
      */
-    val params: Array<Param> = emptyArray(),
+    var params: Array<Param> = emptyArray(),
     /**
      * 是否仅玩家执行
      */
-    val isPlayerOnly: Boolean = false,
+    var isPlayerOnly: Boolean = false,
     /**
      * 命令执行
      */
-    open var onExecute: (Params.(sender: CommandSender) -> Boolean)? = null
+    open var onExecute: (Params.(sender: CommandSender) -> Unit)? = null
 ) : CommandExecutor, TabExecutor {
     var permission: Permission =
         Permission("${BukkitTemplate.getPlugin().name.lowercase()}.$name.", default)
@@ -67,7 +67,7 @@ open class CommandNode(
                 if (parentPerm == null) {
                     parentPerm = Permission(par, PermissionDefault.OP)
                     Bukkit.getPluginManager().addPermission(parentPerm)
-                    CommandBuilder.addPermissions(parentPerm)
+                    CommandHandler.addPermissions(parentPerm)
                 }
                 permission = Permission(str, default)
                 Bukkit.getPluginManager().addPermission(permission)
@@ -78,13 +78,11 @@ open class CommandNode(
     /**
      * 子节点
      */
-    private val subNodes = mutableMapOf<String, CommandNode>()
+    val subNodes = mutableMapOf<String, CommandNode>()
 
     /**
      * 参数类型和建议参数
      */
-    var successMessage: String? = CommandNode.successMessage
-    var failureMessage: String? = CommandNode.failureMessage
     var noPermissionMessage: String? = CommandNode.noPermissionMessage
 
     /**
@@ -96,7 +94,7 @@ open class CommandNode(
         }
         subNodes[node.name] = node
         node.parent = this
-        CommandBuilder.addPermissions(node.permission)
+        CommandHandler.addPermissions(node.permission)
         node.alias?.forEach {
             subNodes[it] = node
         }
@@ -221,18 +219,12 @@ open class CommandNode(
         }
         submit(async = node.async) {
             try {
-                if (node.onExecute!!.invoke((Params(params, node)), sender)) {
-                    if (node.successMessage != null)
-                        sender.sendColorMessage(node.successMessage)
-                } else if (node.failureMessage != null) sender.sendColorMessage(
-                    node.failureMessage,
-                    SimpleLogger.prefix
-                )
+                node.onExecute!!.invoke((Params(params, node)), sender)
             } catch (e: ParmaException) {
                 //参数错误的提示
-                if (e.typeParam != null) sender.sendColorMessage(e.typeParam.errorMessage(e.arg))
-                else {
-//                    node.showUsage(sender)
+                if (e.typeParam != null) {
+                    sender.sendColorMessage(e.typeParam.errorMessage(e.arg))
+                } else {
                     val message = e.message ?: return@submit
                     sender.sendColorMessage(message)
                 }
@@ -244,7 +236,7 @@ open class CommandNode(
     /**
      * 展示用法
      */
-    private fun showUsage(sender: CommandSender) {
+    fun showUsage(sender: CommandSender) {
         val list = mutableListOf<String>()
         if (usageHeader != null) list.add(usageHeader!!)
         val subs = getSubNodes(sender)
@@ -262,7 +254,7 @@ open class CommandNode(
     /**
      * 注册节点
      */
-    fun registerAsRoot() = CommandBuilder.register(this)
+    fun registerAsRoot() = CommandHandler.register(this)
 
     /**
      * 获取整个命令
@@ -289,11 +281,6 @@ open class CommandNode(
     }
 
     companion object {
-        // 执行成功的消息
-        var successMessage: String? = null
-
-        // 执行失败的消息
-        var failureMessage: String? = null
 
         // 没有权限的消息
         var noPermissionMessage: String? = "&c你没有该命令的权限: &7%permission%"

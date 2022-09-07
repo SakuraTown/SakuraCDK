@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -17,13 +17,13 @@ class NormalCDKYml(
 ) : BaseCDK(id, expire, kits) {
 
     override fun upLoadData() {
-        transaction {
+        dbTransaction {
             val findById = NormalCDK.findById(this@NormalCDKYml.id)
             if (findById != null) {
                 findById.expire = this@NormalCDKYml.expire
                 findById.kits = getKitsString()
                 findById.amount = this@NormalCDKYml.amount
-                return@transaction
+                return@dbTransaction
             }
             NormalCDK.new(this@NormalCDKYml.id) {
                 this.expire = this@NormalCDKYml.expire
@@ -88,7 +88,7 @@ class NormalCDK(id: EntityID<String>) : StringEntity(id) {
 
     fun toYml(): NormalCDKYml {
         val kitYmls = mutableListOf<KitYml>()
-        transaction {
+        dbTransaction {
             for (s in kits.split(";")) {
                 val findById = Kit.findById(s) ?: continue
                 kitYmls.add(findById.toKitYml())

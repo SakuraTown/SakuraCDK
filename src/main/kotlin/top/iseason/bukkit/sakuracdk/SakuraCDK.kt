@@ -2,21 +2,20 @@ package top.iseason.bukkit.sakuracdk
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import top.iseason.bukkit.bukkittemplate.KotlinPlugin
-import top.iseason.bukkit.bukkittemplate.command.CommandBuilder
+import top.iseason.bukkit.bukkittemplate.command.CommandHandler
 import top.iseason.bukkit.bukkittemplate.command.TypeParam
 import top.iseason.bukkit.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkit.bukkittemplate.debug.SimpleLogger
 import top.iseason.bukkit.bukkittemplate.debug.info
 import top.iseason.bukkit.bukkittemplate.utils.MessageUtils
-import top.iseason.bukkit.bukkittemplate.utils.toColor
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.toColor
 import top.iseason.bukkit.sakuracdk.commands.cdkAdminCommands
 import top.iseason.bukkit.sakuracdk.commands.userCommand
 import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.data.*
 
 object SakuraCDK : KotlinPlugin() {
-
 
     override fun onEnable() {
 //        SimpleLogger.isDebug = true
@@ -39,7 +38,7 @@ object SakuraCDK : KotlinPlugin() {
         userCommand()
         cdkAdminCommands()
         //如果使用命令模块，取消注释
-        CommandBuilder.updateCommands()
+        CommandHandler.updateCommands()
 
     }
 

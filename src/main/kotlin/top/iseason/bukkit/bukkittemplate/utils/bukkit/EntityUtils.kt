@@ -2,6 +2,7 @@
 
 package top.iseason.bukkit.bukkittemplate.utils.bukkit
 
+import io.github.bananapuncher714.nbteditor.NBTEditor
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item
@@ -53,7 +54,7 @@ object EntityUtils {
      */
     fun PlayerInventory.getHeldItem(): ItemStack? {
         val item = getItem(heldItemSlot)
-        if (item == null || item.checkAir()) return null
+        if (item == null || item.type.checkAir()) return null
         return item
     }
 
@@ -62,4 +63,9 @@ object EntityUtils {
      * @return 没有或者是空气都返回null
      */
     fun Player.getHeldItem(): ItemStack? = inventory.getHeldItem()
+
+    /**
+     * 序列化为json
+     */
+    fun Entity.toJson() = NBTEditor.getNBTCompound(this).toJson()
 }

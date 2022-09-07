@@ -47,6 +47,9 @@ open class TypeParam<T : Any>(
     }
 }
 
+/**
+ * 默认提供的参数
+ */
 private fun setDefaultParams() {
     TypeParam(Player::class, errorMessage = { "&7玩家 &c${it} &7不存在!" }) {
         var player = Bukkit.getPlayerExact(it)
@@ -95,4 +98,5 @@ private fun setDefaultParams() {
     TypeParam(Material::class) {
         Material.getMaterial(it.uppercase())
     }
+
 }

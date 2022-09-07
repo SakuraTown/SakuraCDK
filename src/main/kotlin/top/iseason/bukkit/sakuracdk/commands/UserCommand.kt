@@ -6,29 +6,30 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
-import top.iseason.bukkit.bukkittemplate.command.commandRoot
+import top.iseason.bukkit.bukkittemplate.command.command
 import top.iseason.bukkit.bukkittemplate.config.DatabaseConfig
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import top.iseason.bukkit.bukkittemplate.utils.EasyCoolDown
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessage
 import top.iseason.bukkit.bukkittemplate.utils.submit
 import top.iseason.bukkit.sakuracdk.config.Lang
 import top.iseason.bukkit.sakuracdk.data.*
 import java.time.LocalDateTime
 
 fun userCommand() {
-    commandRoot(
-        "sakuracdk",
-        alias = arrayOf("cdk", "scdk"),
-        description = "使用cdk兑换礼包",
-        default = PermissionDefault.TRUE,
-        isPlayerOnly = true,
-        async = true,
-        params = arrayOf(Param("[cdk]"))
+    command(
+        "sakuracdk"
+
     ) {
-        onExecute {
+        alias = arrayOf("cdk", "scdk")
+        description = "使用cdk兑换礼包"
+        default = PermissionDefault.TRUE
+        isPlayerOnly = true
+        async = true
+        params = arrayOf(Param("[cdk]"))
+        onExecute = {
             if (EasyCoolDown.check(it, 1000)) throw ParmaException(Lang.command__user_send_too_fast)
             if (!DatabaseConfig.isConnected) throw ParmaException(Lang.command__user_database_closed)
             val cdk = getParam<String>(0).trim()
@@ -36,7 +37,7 @@ fun userCommand() {
             val player = it as Player
             val uniqueId = player.uniqueId
             var groupTemp: String?
-            transaction {
+            dbTransaction {
                 val cdkResult = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull()
                     ?: throw ParmaException(Lang.command__user_cdk_unexist)
                 val group = cdkResult[CDKs.group]
@@ -85,7 +86,6 @@ fun userCommand() {
                     player.sendColorMessage(Lang.command__user_success)
                 }
             }
-            true
         }
     }
 }

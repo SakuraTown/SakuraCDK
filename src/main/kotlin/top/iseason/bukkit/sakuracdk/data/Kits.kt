@@ -5,7 +5,7 @@ import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import java.time.LocalDateTime
 
 object Kits : StringIdTable() {
@@ -20,7 +20,7 @@ object Kits : StringIdTable() {
 fun <T : Comparable<T>> IdTable<T>.has(id: T): Boolean {
     return try {
         var has = false
-        transaction {
+        dbTransaction {
             has = !this@has.slice(this@has.id).select { this@has.id eq id }.limit(1).empty()
         }
         has

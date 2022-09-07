@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 object Utils {
-    val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
+    private val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
 
     //获取一定时间间隔后的时间，例如 "1Y2M3W4d5h6m7s" 可随意组合
     fun parseTimeAfter(str: String): LocalDateTime {

@@ -6,9 +6,9 @@ import org.bukkit.permissions.PermissionDefault
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParamSuggestCache
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessage
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.toColor
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.IOUtils.onItemInput
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
-import top.iseason.bukkit.bukkittemplate.utils.toColor
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.data.KitYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml
@@ -31,7 +31,10 @@ object KitCreateNode : CommandNode(
     init {
         onExecute = onExecute@{
             val id = getParam<String>(0)
-            if (KitsYml.kits.containsKey(id)) return@onExecute false
+            if (KitsYml.kits.containsKey(id)) {
+                it.sendColorMessage("&6创建失败，ID已存在")
+                return@onExecute
+            }
             val time = getParam<String>(1)
             val expires = try {
                 LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
@@ -47,13 +50,11 @@ object KitCreateNode : CommandNode(
                     KitsYml.save(false)
                     it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
                 }
-                return@onExecute true
+                return@onExecute
             }
             KitsYml.save(false)
             it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
-            true
         }
-        failureMessage = "创建失败，ID已存在"
     }
 }
 
@@ -66,13 +67,15 @@ object KitDeleteNode : CommandNode(
     init {
         onExecute = onExecute@{
             val id = getParam<String>(0)
-            if (!KitsYml.kits.containsKey(id)) return@onExecute false
+            if (!KitsYml.kits.containsKey(id)) {
+                it.sendColorMessage("&6ID不存在!")
+                return@onExecute
+            }
             KitsYml.kits.remove(id)
             KitsYml.save(false)
             it.sendColorMessage("&6$id &a已删除")
             true
         }
-        failureMessage = "&cID不存在!"
     }
 }
 
@@ -97,9 +100,7 @@ object KitAddItemNode : CommandNode(
                 KitsYml.save(false)
                 sender.sendColorMessage("&6物品添加成功")
             }
-            true
         }
-        failureMessage = "&cID不存在!"
     }
 }
 
@@ -117,8 +118,6 @@ object KitGiveNode : CommandNode(
             val player = getParam<Player>(1)
             kitYml.applyPlayer(player)
             it.sendColorMessage("&a礼包已给予 &6${player.name}")
-            true
         }
-        failureMessage = "&cID不存在!"
     }
 }

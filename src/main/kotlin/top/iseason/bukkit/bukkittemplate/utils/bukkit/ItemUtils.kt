@@ -12,7 +12,9 @@ import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.inventory.BlockInventoryHolder
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.*
@@ -21,7 +23,7 @@ import org.bukkit.material.SpawnEgg
 import org.bukkit.potion.*
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
-import top.iseason.bukkit.bukkittemplate.utils.toColor
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.toColor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -334,7 +336,7 @@ object ItemUtils {
                 if (this is BannerMeta) yaml.createSection(
                     "banner",
                     patterns.associate { it.pattern.name to it.color.name })
-            } else if (this.spigot().isUnbreakable) yaml["unbreakable"] = true
+            }
             // 1.14 以上
             if (NBTEditor.getMinecraftVersion().greaterThanOrEqualTo(NBTEditor.MinecraftVersion.v1_14)) {
                 // 模型
@@ -396,6 +398,7 @@ object ItemUtils {
 
     /**
      * 从配置反序列化ItemStack
+     * @param allowNested 是否允许嵌套解析(比如潜影盒)，只对容器有效，为false时将容器内容转为base64储存
      */
     fun fromSection(section: ConfigurationSection, allowNested: Boolean = true): ItemStack? {
         val material = Material.getMaterial(section.getString("material")!!.uppercase()) ?: return null
@@ -574,7 +577,47 @@ object ItemUtils {
         return item
     }
 
+    /**
+     * 物品集合转为配置
+     * @param allowNested 是否允许嵌套解析(比如潜影盒)，只对容器有效，为false时将容器内容转为base64储存
+     */
     fun Collection<ItemStack>.toSection(allowNested: Boolean = true) = map { it.toSection(allowNested) }
+
+    /**
+     * 配置list转为物品集合，配合 ConfigurationSection::getList 方法使用
+     * @param allowNested 是否允许嵌套解析(比如潜影盒)，只对容器有效，为false时将容器内容转为base64储存
+     */
+    fun fromSections(sections: List<*>, allowNested: Boolean = true): List<ItemStack> {
+        if (sections.isEmpty()) return emptyList()
+        return sections.mapNotNull { if (it is ConfigurationSection) fromSection(it, allowNested) else null }
+    }
+
+    /**
+     * 带有序号的物品集合转为ConfigurationSection
+     * @param allowNested 是否允许嵌套解析(比如潜影盒)，只对容器有效，为false时将容器内容转为base64储存
+     */
+    fun Map<Int, ItemStack>.toSection(allowNested: Boolean = true): ConfigurationSection {
+        val yamlConfiguration = YamlConfiguration()
+        forEach { (index, item) ->
+            yamlConfiguration[index.toString()] = item.toSection(allowNested)
+        }
+        return yamlConfiguration
+    }
+
+    /**
+     * ConfigurationSection转为带有序号的物品集合
+     * @param allowNested 是否允许嵌套解析(比如潜影盒)，只对容器有效，为false时将容器内容转为base64储存
+     */
+    fun fromSectionToMap(section: ConfigurationSection, allowNested: Boolean = true): Map<Int, ItemStack> {
+        val mutableMapOf = mutableMapOf<Int, ItemStack>()
+        section.getKeys(false).forEach {
+            kotlin.runCatching {
+                mutableMapOf[it.toInt()] =
+                    fromSection(section.getConfigurationSection(it)!!, allowNested) ?: return@forEach
+            }
+        }
+        return mutableMapOf
+    }
 
     /**
      * 字节转换为ItemStack
@@ -638,8 +681,8 @@ object ItemUtils {
      */
     fun fromJson(json: String): ItemStack = NBTEditor.getItemFromTag(NBTEditor.getNBTCompound(json))
 
-    fun Color.toRGBString(): String = "${red},${green},${blue}"
-    fun fromColorStr(str: String): Color {
+    private fun Color.toRGBString(): String = "${red},${green},${blue}"
+    private fun fromColorStr(str: String): Color {
         val split = str.trim().split(',')
         return Color.fromRGB(
             split.getOrNull(0)?.toInt() ?: 0,
@@ -648,9 +691,9 @@ object ItemUtils {
         )
     }
 
-    fun PotionEffect.toEffectString(): String = "${type.name},${duration},${amplifier}"
+    private fun PotionEffect.toEffectString(): String = "${type.name},${duration},${amplifier}"
 
-    fun fromEffectString(str: String): PotionEffect? {
+    private fun fromEffectString(str: String): PotionEffect? {
         val split = str.trim().split(',')
         val type = runCatching { PotionEffectType.getByName(split[0]) }.getOrNull() ?: return null
         val duration = runCatching { split[1].toInt() }.getOrElse { return null }
@@ -661,7 +704,7 @@ object ItemUtils {
     /**
      * 由namespacekey 获取对应的附魔
      */
-    fun matchEnchant(key: String): Enchantment? {
+    private fun matchEnchant(key: String): Enchantment? {
         val split = key.split(':')
         val k = if (split.size == 1) NamespacedKey.minecraft(key)
         else if (split.size == 2) NamespacedKey(
@@ -669,4 +712,45 @@ object ItemUtils {
         ) else return null
         return Enchantment.getByKey(k)
     }
+
+    /**
+     * 模拟玩家背包检查是否能添加物品
+     * @return 溢出的物品数量
+     */
+    fun Player.canAddItem(vararg itemStacks: ItemStack): Int {
+        val createInventory = Bukkit.createInventory(this, 36)
+        //将需要输入的物品合并
+        val addItem = createInventory.addItem(*itemStacks)
+        val sortedItems = createInventory.mapNotNull { it }
+        createInventory.contents = inventory.storageContents
+        val addItems = createInventory.addItem(*sortedItems.toTypedArray())
+        return addItems.size + addItem.size
+    }
+
+    /**
+     * 模拟玩家背包检查是否能添加物品
+     * @return 溢出的物品数量
+     */
+    fun Player.canAddItem(itemStacks: Collection<ItemStack>): Int = canAddItem(*itemStacks.toTypedArray())
+
+    /**
+     * 模拟背包检查是否能添加物品
+     * @return 溢出的物品数量
+     */
+    fun Inventory.canAddItem(vararg itemStacks: ItemStack): Int {
+        val createInventory = Bukkit.createInventory(null, this.contents.size)
+        val addItem = createInventory.addItem(*itemStacks)
+        val sortedItems = createInventory.mapNotNull { it }
+        createInventory.contents = this.contents
+        val addItems = createInventory.addItem(*sortedItems.toTypedArray())
+        return addItems.size + addItem.size
+    }
+
+    /**
+     * 模拟背包检查是否能添加物品
+     * @return 溢出的物品数量
+     */
+    fun Inventory.canAddItem(itemStacks: Collection<ItemStack>): Int = canAddItem(*itemStacks.toTypedArray())
+
+
 }

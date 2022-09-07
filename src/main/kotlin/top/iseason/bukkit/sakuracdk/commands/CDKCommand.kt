@@ -5,11 +5,11 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.CommandNode
 import top.iseason.bukkit.bukkittemplate.command.Param
 import top.iseason.bukkit.bukkittemplate.command.ParmaException
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessages
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessage
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.config.Config
@@ -35,7 +35,7 @@ object CDKCreateNode : CommandNode(
             val amount = getParam<Int>(1)
             val file = File(SakuraCDK.javaPlugin.dataFolder, "random${File.separatorChar}${id}.txt")
             if (file.exists()) throw ParmaException("&c文件已存在!")
-            transaction {
+            dbTransaction {
                 if (!CDKs.select { CDKs.group eq id }.limit(1).empty()) {
                     throw ParmaException("&c文件已存在!")
                 }
@@ -43,7 +43,7 @@ object CDKCreateNode : CommandNode(
             file.parentFile.mkdirs()
             file.createNewFile()
             BufferedWriter(OutputStreamWriter(FileOutputStream(file))).use { bw ->
-                transaction {
+                dbTransaction {
                     repeat(amount) {
                         val replaceRandom = Utils.replaceRandom(Config.cdkTemplate)
                         bw.write(replaceRandom)
@@ -56,9 +56,8 @@ object CDKCreateNode : CommandNode(
                     }
                 }
             }
-            true
+            it.sendColorMessage("文件已创建!")
         }
-        successMessage = "文件已创建!"
     }
 }
 
@@ -73,7 +72,7 @@ object CDKInfoNode : CommandNode(
         onExecute = {
             val cdk = getParam<String>(0)
             val mutableListOf = mutableListOf<String>()
-            transaction {
+            dbTransaction {
                 val cdks = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull() ?: throw ParmaException("&6cdk不存在")
                 mutableListOf.add("&aCDK: &6${cdk}")
                 val group = cdks[CDKs.group]
@@ -98,9 +97,8 @@ object CDKInfoNode : CommandNode(
                     mutableListOf.add("&a过期: &6${findById.expire}")
                     mutableListOf.add("&a礼包: &6${findById.kits}")
                 } else throw ParmaException("cdk不存在")
-                it.sendColorMessages(mutableListOf)
+                it.sendColorMessage(mutableListOf)
             }
-            true
         }
     }
 }

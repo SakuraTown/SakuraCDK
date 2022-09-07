@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import java.io.*
 import java.time.LocalDateTime
@@ -24,13 +24,13 @@ class RandomCDKYml(
     var allowRepeat = false
 
     override fun upLoadData() {
-        transaction {
+        dbTransaction {
             val findById = RandomCDK.findById(group)
             if (findById != null) {
                 findById.expire = this@RandomCDKYml.expire
                 findById.kits = getKitsString()
                 findById.repeat = this@RandomCDKYml.allowRepeat
-                return@transaction
+                return@dbTransaction
             }
             RandomCDK.new(group) {
                 this.expire = this@RandomCDKYml.expire
@@ -50,7 +50,7 @@ class RandomCDKYml(
 
     fun removeCDK(cdk: String) {
         cdkSet.remove(cdk)
-        transaction {
+        dbTransaction {
             CDKs.deleteWhere { CDKs.id eq cdk }
         }
     }
@@ -135,7 +135,7 @@ class RandomCDK(id: EntityID<String>) : StringEntity(id) {
         val kitYmls = mutableListOf<KitYml>()
         var cdks: HashSet<String> = hashSetOf()
         val group = id.value
-        transaction {
+        dbTransaction {
             for (s in kits.split(";")) {
                 val findById = Kit.findById(s) ?: continue
                 kitYmls.add(findById.toKitYml())

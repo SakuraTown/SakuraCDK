@@ -13,8 +13,8 @@ import org.jetbrains.exposed.sql.statements.StatementContext
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import top.iseason.bukkit.bukkittemplate.AutoDisable
 import top.iseason.bukkit.bukkittemplate.BukkitTemplate
+import top.iseason.bukkit.bukkittemplate.DisableHook
 import top.iseason.bukkit.bukkittemplate.config.annotations.Comment
 import top.iseason.bukkit.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkit.bukkittemplate.config.annotations.Key
@@ -54,8 +54,13 @@ object DatabaseConfig : SimpleYAMLConfig() {
     var isConnected = false
         private set
     private var isConnecting = false
-    private lateinit var connection: Database
+    public lateinit var connection: Database
+        private set
     private var ds: HikariDataSource? = null
+
+    init {
+        DisableHook.addTask { closeDB() }
+    }
 
     override val onLoaded: (ConfigurationSection.() -> Unit) = {
         isAutoUpdate = autoReload
@@ -72,7 +77,6 @@ object DatabaseConfig : SimpleYAMLConfig() {
         if (isConnecting) return
         info("&6数据库链接中...")
         isConnecting = true
-        AutoClose
         closeDB()
         runCatching {
             val dd = DependencyDownloader().apply {
@@ -173,11 +177,6 @@ object DatabaseConfig : SimpleYAMLConfig() {
         }.getOrElse { it.printStackTrace() }
     }
 
-    object AutoClose : AutoDisable() {
-        override fun onDisable() {
-            closeDB()
-        }
-    }
 }
 
 /**
@@ -201,3 +200,9 @@ object MySqlLogger : SqlLogger {
         debug("&6DEBUG SQL: &7${context.expandArgs(transaction)}")
     }
 }
+
+/**
+ * 使用本插件数据库的事务
+ */
+fun <T> dbTransaction(statement: Transaction.() -> T) =
+    transaction(top.iseason.bukkit.bukkittemplate.config.DatabaseConfig.connection, statement)

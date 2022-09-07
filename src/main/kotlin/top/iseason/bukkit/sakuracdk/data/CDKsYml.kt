@@ -5,9 +5,9 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkit.bukkittemplate.config.annotations.FilePath
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import java.io.BufferedReader
 import java.io.File
@@ -46,7 +46,7 @@ object CDKsYml : SimpleYAMLConfig() {
     }
 
     fun updateAllData() {
-        transaction {
+        dbTransaction {
             NormalCDKs.deleteAll()
             RandomCDKs.deleteAll()
         }
@@ -59,10 +59,10 @@ object CDKsYml : SimpleYAMLConfig() {
      * 将随机key同步至数据库
      */
     fun updateRandomData() {
-        transaction {
+        dbTransaction {
             CDKs.deleteWhere { CDKs.type eq "random" }
             val file = File(SakuraCDK.javaPlugin.dataFolder, "random")
-            if (!file.exists()) return@transaction
+            if (!file.exists()) return@dbTransaction
             file.listFiles()?.forEach {
                 if (!it.isFile) return@forEach
                 var name = it.name
@@ -70,9 +70,9 @@ object CDKsYml : SimpleYAMLConfig() {
                 name = name.removeSuffix(".txt")
                 BufferedReader(FileReader(it))
                     .lines()
-                    .forEach { cdk ->
+                    .forEach forEach2@{ cdk ->
                         val cdkStr = cdk.trim()
-                        if (cdkStr.isBlank()) return@forEach
+                        if (cdkStr.isBlank()) return@forEach2
                         CDKs.insert { cdks ->
                             cdks[CDKs.id] = cdkStr
                             cdks[group] = name
@@ -85,7 +85,7 @@ object CDKsYml : SimpleYAMLConfig() {
 
     //将CDK数据下载至本地
     fun downloadAll() {
-        transaction {
+        dbTransaction {
             for (normalCDK in NormalCDK.all()) {
                 val value = normalCDK.id.value
                 var section = this@CDKsYml.config.getConfigurationSection(value)

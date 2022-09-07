@@ -6,7 +6,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
-import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.EntityUtils.giveItems
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils
 import top.iseason.bukkit.bukkittemplate.utils.bukkit.ItemUtils.toBase64
@@ -30,7 +30,7 @@ class KitYml(
 
     //上传数据库
     fun updateDataBase() {
-        transaction {
+        dbTransaction {
             var kit = Kit.findById(this@KitYml.id)
             if (kit != null) {
                 kit.create = this@KitYml.create

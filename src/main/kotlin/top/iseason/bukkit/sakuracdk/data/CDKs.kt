@@ -1,7 +1,7 @@
 package top.iseason.bukkit.sakuracdk.data
 
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
 
 object CDKs : StringIdTable() {
     val group = varchar("group", 30)
@@ -11,7 +11,7 @@ object CDKs : StringIdTable() {
     fun downloadRandomData() {
         val mutableListOf = mutableMapOf<String, MutableList<String>>()
         //查询数据
-        transaction {
+        dbTransaction {
             CDKs.select { type eq "random" }.forEach {
                 val group = it[group]
                 var strings = mutableListOf[group]

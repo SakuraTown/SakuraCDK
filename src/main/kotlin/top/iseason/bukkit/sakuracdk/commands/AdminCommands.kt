@@ -2,10 +2,11 @@ package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.permissions.PermissionDefault
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.transactions.transaction
 import top.iseason.bukkit.bukkittemplate.command.Param
-import top.iseason.bukkit.bukkittemplate.command.commandRoot
-import top.iseason.bukkit.bukkittemplate.utils.sendColorMessage
+import top.iseason.bukkit.bukkittemplate.command.command
+import top.iseason.bukkit.bukkittemplate.command.node
+import top.iseason.bukkit.bukkittemplate.config.dbTransaction
+import top.iseason.bukkit.bukkittemplate.utils.MessageUtils.sendColorMessage
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.data.CDKs
 import top.iseason.bukkit.sakuracdk.data.CDKsYml
@@ -14,29 +15,31 @@ import top.iseason.bukkit.sakuracdk.data.Records
 import java.time.LocalDateTime
 
 fun cdkAdminCommands() {
-    commandRoot(
-        "sakuracdkadmin",
-        alias = arrayOf("cdkadmin"),
-        description = "管理cdk",
-        default = PermissionDefault.OP,
-        isPlayerOnly = true,
-        async = true,
-        params = arrayOf(Param("[cdk]"))
+    command(
+        "sakuracdkadmin"
     ) {
-        node("reload", default = PermissionDefault.OP, async = true, description = "重载配置") {
-            onExecute {
+        alias = arrayOf("cdkadmin")
+        description = "管理cdk"
+        default = PermissionDefault.OP
+        isPlayerOnly = true
+        async = true
+        params = arrayOf(Param("[cdk]"))
+        node("reload") {
+            default = PermissionDefault.OP
+            async = true
+            description = "重载配置"
+            onExecute = {
                 KitsYml.load()
-                true
             }
         }
         node(
-            "download",
-            default = PermissionDefault.OP,
-            async = true,
-            description = "将数据库的数据下载到本地",
-            params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
+            "download"
         ) {
-            onExecute {
+            default = PermissionDefault.OP
+            async = true
+            description = "将数据库的数据下载到本地"
+            params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
+            onExecute = {
                 val option = getOptionalParam<String>(0) ?: "all"
                 it.sendColorMessage("&6开始下载数据...")
                 try {
@@ -54,17 +57,16 @@ fun cdkAdminCommands() {
                     e.printStackTrace()
                 }
                 it.sendColorMessage("&a数据 &6${option} &a下载完成!")
-                true
             }
         }
         node(
-            "update",
-            default = PermissionDefault.OP,
-            async = true,
-            description = "将数据同步至数据库",
-            params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
+            "update"
         ) {
-            onExecute {
+            default = PermissionDefault.OP
+            async = true
+            description = "将数据同步至数据库"
+            params = arrayOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
+            onExecute = {
                 val option = getOptionalParam<String>(0) ?: "all"
                 it.sendColorMessage("&6开始上传数据...")
                 try {
@@ -87,28 +89,26 @@ fun cdkAdminCommands() {
                     e.printStackTrace()
                 }
                 it.sendColorMessage("&a数据 &6${option} &a上传完成!")
-                true
             }
         }
         node(
-            "delete",
-            default = PermissionDefault.OP,
-            async = true,
-            description = "删除一定时间外的礼包领取记录",
-            params = arrayOf(Param("[time]", listOf("1d", "1w", "all")))
+            "delete"
         ) {
-            onExecute {
+            default = PermissionDefault.OP
+            async = true
+            description = "删除一定时间外的礼包领取记录"
+            params = arrayOf(Param("[time]", listOf("1d", "1w", "all")))
+            onExecute = {
                 val param = getParam<String>(0)
                 val parseTime = Utils.parseTimeBefore(param)
-                transaction {
+                dbTransaction {
                     Records.deleteWhere { Records.acceptTime.between(LocalDateTime.of(2022, 1, 1, 0, 0), parseTime) }
                 }
                 it.sendColorMessage("&a 已删除 &6$parseTime &a之前的记录")
-                true
             }
         }
         node(CDKInfoNode)
-        node(KitNode) {
+        node(KitNode).apply {
             node(KitCreateNode)
             node(KitDeleteNode)
             node(KitAddItemNode)
