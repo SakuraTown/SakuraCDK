@@ -79,7 +79,7 @@ object KitDeleteNode : CommandNode(
     }
 }
 
-object KitAddItemNode : CommandNode(
+object KitEditNode : CommandNode(
     "edit", async = true,
     description = "编辑礼包物品",
     isPlayerOnly = true,

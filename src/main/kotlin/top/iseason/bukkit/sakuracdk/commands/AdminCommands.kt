@@ -111,7 +111,7 @@ fun cdkAdminCommands() {
         node(KitNode).apply {
             node(KitCreateNode)
             node(KitDeleteNode)
-            node(KitAddItemNode)
+            node(KitEditNode)
             node(KitGiveNode)
         }
         node(CDKCreateNode)

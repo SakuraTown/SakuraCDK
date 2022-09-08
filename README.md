@@ -52,7 +52,7 @@ kits:
       - CMD:gamemode survival %player%
       - OP:fly
       - spawn
-    # 给予玩家的物品, 通过cdkadmin addItem [id] 添加
+    # 给予玩家的物品, 通过cdkadmin edit [id] 添加
     itemStacks:
 ~~~
 
@@ -61,7 +61,7 @@ kits:
 ~~~ text
 /cdkadmin kit create [id] [过期时间]  创建礼包
 /cdkadmin kit delete [id]  删除礼包
-/cdkadmin kit addItem [id]  给礼包添加手上物品
+/cdkadmin kit edit [id]  编辑该礼包的物品
 /cdkadmin kit give [id] [player]  将礼包给予玩家,不会有记录
 ~~~
 
@@ -135,4 +135,4 @@ type同以上
 
 命令权限为sakuracdk.节点名称
 
-比如`/cdkadmin kit addItem` 的权限为`sakuracdk.cdkadmin.kit.addItem`
+比如`/cdkadmin kit edit` 的权限为`sakuracdk.cdkadmin.kit.edit`
