@@ -36,8 +36,6 @@ auto-Update: true
 kits:
   # 取个名字，随意，不冲突即可
   test:
-    # 必须复制一份
-    ==: top.iseason.bukkit.sakuracdk.data.KitYml
     # 识别id，不允许重复
     id: test
     # 创建日期，随意，无关紧要

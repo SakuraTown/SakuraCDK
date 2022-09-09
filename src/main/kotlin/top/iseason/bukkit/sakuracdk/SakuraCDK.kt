@@ -1,6 +1,5 @@
 package top.iseason.bukkit.sakuracdk
 
-import org.bukkit.configuration.serialization.ConfigurationSerialization
 import top.iseason.bukkit.bukkittemplate.KotlinPlugin
 import top.iseason.bukkit.bukkittemplate.command.CommandHandler
 import top.iseason.bukkit.bukkittemplate.command.TypeParam
@@ -28,8 +27,8 @@ object SakuraCDK : KotlinPlugin() {
     override fun onAsyncEnable() {
         SakuraCDK.javaPlugin.saveResource("cdk.yml", false)
         SakuraCDK.javaPlugin.saveResource("kits.yml", false)
+//        ConfigurationSerialization.registerClass(KitYml::class.java)
         Config.load(false)
-        ConfigurationSerialization.registerClass(KitYml::class.java)
         DatabaseConfig.load(false)
         DatabaseConfig.initTables(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
         TypeParam(KitYml::class, { "$it 不是一个有效的Kit" }) { KitsYml.kits[it] }

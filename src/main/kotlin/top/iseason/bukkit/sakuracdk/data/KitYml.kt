@@ -2,7 +2,6 @@ package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
@@ -20,7 +19,7 @@ class KitYml(
     val id: String,
     val create: LocalDateTime,
     val expire: LocalDateTime
-) : ConfigurationSerializable {
+) {
 
     //过期时间
     var commandsImpl = mutableListOf<String>()
@@ -97,7 +96,10 @@ class KitYml(
 
     }
 
-    override fun serialize(): MutableMap<String, Any> {
+    /**
+     * 序列化
+     */
+    fun serialize(): MutableMap<String, Any> {
         val mutableMapOf = mutableMapOf<String, Any>()
         mutableMapOf["id"] = id
         mutableMapOf["create"] = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(create)
@@ -113,6 +115,9 @@ class KitYml(
     }
 
     companion object {
+        /**
+         * 反序列化
+         */
         @JvmStatic
         fun deserialize(args: Map<String, Any>): KitYml? {
             val id = args["id"] as? String ?: return null

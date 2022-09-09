@@ -2,6 +2,8 @@ package top.iseason.bukkit.sakuracdk.data
 
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.configuration.MemorySection
+import org.bukkit.configuration.file.YamlConfiguration
 import org.jetbrains.exposed.sql.deleteAll
 import top.iseason.bukkit.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkit.bukkittemplate.config.SimpleYAMLConfig
@@ -18,9 +20,9 @@ object KitsYml : SimpleYAMLConfig() {
     @Comment("是否自动更新")
     var auto_update = true
 
-    @Key
-    var kits = hashMapOf<String, KitYml>()
-
+    @Key("kits")
+    var kitsSection: MemorySection = YamlConfiguration()
+    var kits = mutableMapOf<String, KitYml>()
     val suggestKits: (CommandSender.() -> Collection<String>) = { kits.keys }
 
     override val onLoaded: (ConfigurationSection.() -> Unit) = onLoaded@{
@@ -29,7 +31,18 @@ object KitsYml : SimpleYAMLConfig() {
             warn("&c数据异常，请联系管理员!")
             return@onLoaded
         }
+        kits.clear()
+        kitsSection.getKeys(false).forEach {
+            val keys = kitsSection.getConfigurationSection(it)!!.getValues(true)
+            kits[it] = KitYml.deserialize(keys) ?: return@forEach
+        }
 //        uploadData()
+    }
+    override val onSaved: (ConfigurationSection.() -> Unit) = {
+        kitsSection.getKeys(false).forEach { kitsSection[it] = null }
+        kits.forEach { (t, u) ->
+            kitsSection[t] = u.serialize()
+        }
     }
 
     fun uploadData() {

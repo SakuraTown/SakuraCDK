@@ -156,10 +156,6 @@ tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
     keepclassmembers("class * implements $groupS.libs.core.ui.container.BaseUI {*;}")
     keepclassmembers(allowObf, "class * implements org.bukkit.event.Listener {*;}")
     keepclassmembers(allowObf, "class * implements org.jetbrains.exposed.dao.id.IdTable {*;}")
-    keepclassmembers(
-        allowObf,
-        "class * implements org.bukkit.configuration.serialization.ConfigurationSerializable {*;}"
-    )
     keepattributes("Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod")
     keepkotlinmetadata()
     repackageclasses()

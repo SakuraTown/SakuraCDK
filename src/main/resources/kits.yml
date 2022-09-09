@@ -2,7 +2,6 @@
 auto-Update: true
 kits:
   test:
-    ==: top.iseason.bukkit.sakuracdk.data.KitYml
     id: test
     create: "2022-08-10T23:02:32.052"
     expires: "2022-09-10T23:02:32.056"
