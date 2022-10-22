@@ -1,6 +1,7 @@
 package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.entity.Player
+import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
@@ -24,8 +25,8 @@ fun userCommand() {
     ) {
         alias = arrayOf("cdk", "scdk")
         description = "使用cdk兑换礼包"
-        default = PermissionDefault.TRUE
         isPlayerOnly = true
+        permission = Permission("sakuracdk.use", PermissionDefault.TRUE)
         async = true
         params = listOf(Param("[cdk]"))
         onExecute = {

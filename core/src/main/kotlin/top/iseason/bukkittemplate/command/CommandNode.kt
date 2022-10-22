@@ -51,7 +51,7 @@ open class CommandNode(
     open var onExecute: (Params.(sender: CommandSender) -> Unit)? = null
 ) : CommandExecutor, TabExecutor {
     var permission: Permission =
-        Permission("${BukkitTemplate.getPlugin().name.lowercase()}.$name.", default)
+        Permission("${BukkitTemplate.getPlugin().name.lowercase()}.$name", default)
 
     /**
      * 获取父节点
@@ -178,7 +178,7 @@ open class CommandNode(
         if (keys.isEmpty() && node.params.isNotEmpty()) {
             val last = args.last()
             val param = node.params.getOrNull(args.size - deep - 1) ?: return null
-            return (param.suggestRuntime?.invoke(sender) ?: param.suggest)?.filter {
+            return (param.suggestRuntime?.getParams(sender) ?: param.suggest)?.filter {
                 it.startsWith(last, true)
             }
         }

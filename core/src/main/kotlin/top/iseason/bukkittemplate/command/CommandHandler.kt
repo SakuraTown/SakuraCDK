@@ -38,7 +38,6 @@ object CommandHandler {
         simpleCommandMap = commandMapField.get(simplePluginManager) as SimpleCommandMap
         DisableHook.addTask { onDisable() }
     }
-
     // PluginCommand原本只能通过plugin.yml中声明的命令创建，有点自私，乖乖开放吧
     private fun getPluginCommandConstructor(): Constructor<PluginCommand> {
         val constructor = PluginCommand::class.java.getDeclaredConstructor(String::class.java, Plugin::class.java)
@@ -185,7 +184,7 @@ fun CommandNode.executor(onExecute: (Params.(sender: CommandSender) -> Unit)? = 
 fun CommandNode.param(
     placeholder: String,
     suggest: Collection<String>? = null,
-    suggestRuntime: (CommandSender.() -> Collection<String>)? = null
+    suggestRuntime: Param.RuntimeSuggestParams? = null
 ) {
     params = params.toMutableList().apply { add(Param(placeholder, suggest, suggestRuntime)) }
 }

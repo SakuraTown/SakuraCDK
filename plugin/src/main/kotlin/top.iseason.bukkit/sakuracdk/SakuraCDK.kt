@@ -31,7 +31,7 @@ object SakuraCDK : KotlinPlugin() {
         Config.load(false)
         DatabaseConfig.load(false)
         DatabaseConfig.initTables(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
-        ParamAdopter(KitYml::class, "$%s 不是一个有效的Kit") { KitsYml.kits[it] }
+        ParamAdopter(KitYml::class, "$%s 不是一个有效的Kit") { KitsYml.kits[it] }.register()
         KitsYml.load(false)
         CDKsYml.load(false)
         userCommand()
