@@ -18,9 +18,13 @@
 * 丰富的消息API
 
 ## 截图
+
 查询cdk信息
+
 ![查询cdk信息](https://user-images.githubusercontent.com/65019366/216334442-94f8065b-13ee-4405-830f-8f064249ad36.png)
+
 游戏内编辑礼包物品
+
 ![游戏内编辑礼包物品](https://user-images.githubusercontent.com/65019366/216334469-e7e70e57-78cc-4517-85b6-9c27836ca1c4.png)
 
 
