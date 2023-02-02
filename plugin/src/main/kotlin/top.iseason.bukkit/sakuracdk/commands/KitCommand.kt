@@ -7,6 +7,7 @@ import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.data.KitYml
 import top.iseason.bukkit.sakuracdk.data.KitsYml
 import top.iseason.bukkittemplate.command.CommandNode
+import top.iseason.bukkittemplate.command.CommandNodeExecutor
 import top.iseason.bukkittemplate.command.Param
 import top.iseason.bukkittemplate.command.ParamSuggestCache
 import top.iseason.bukkittemplate.utils.bukkit.IOUtils.onItemInput
@@ -28,35 +29,37 @@ object KitCreateNode : CommandNode(
         Param("[过期时间]", suggest = listOf("1Y2M3W4d5h6m7s", "2022-08-20T16:22:41"))
     )
 ) {
-    init {
-        onExecute = onExecute@{
-            val id = getParam<String>(0)
-            if (KitsYml.kits.containsKey(id)) {
-                it.sendColorMessage("&6创建失败，ID已存在")
-                return@onExecute
-            }
-            val time = getParam<String>(1)
-            val expires = try {
-                LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            } catch (e: Exception) {
-                Utils.parseTimeAfter(time)
-            }
-            val kitYml = KitYml(id, LocalDateTime.now(), expires)
-            KitsYml.kits[id] = kitYml
-            val player = it as? Player
-            if (player != null) {
-                player.onItemInput(async = true) { inv ->
-                    kitYml.itemStacksImpl = inv.filterNotNull().toMutableList()
-                    KitsYml.save(false)
-                    it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
-                }
-                return@onExecute
-            }
-            KitsYml.save(false)
-            it.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val id = params.next<String>()
+        if (KitsYml.kits.containsKey(id)) {
+            sender.sendColorMessage("&6创建失败，ID已存在")
+            return@CommandNodeExecutor
         }
+        val time = params.next<String>()
+        val expires = try {
+            LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        } catch (e: Exception) {
+            Utils.parseTimeAfter(time)
+        }
+        val kitYml = KitYml(id, LocalDateTime.now(), expires)
+        KitsYml.kits[id] = kitYml
+
+        val player = sender as? Player
+        if (player != null) {
+            player.onItemInput(async = true) { inv ->
+                kitYml.itemStacksImpl = inv.filterNotNull().toMutableList()
+                KitsYml.kitsSection.createSection(id, kitYml.serialize())
+                KitsYml.save(false)
+                sender.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
+            }
+            return@CommandNodeExecutor
+        }
+        KitsYml.kitsSection.createSection(id, kitYml.serialize())
+        KitsYml.save(false)
+        sender.sendColorMessage("&a创建&6 $id &a成功,过期时间: &6 $expires")
     }
 }
+
 
 object KitDeleteNode : CommandNode(
     "delete", async = true, description = "删除礼包",
@@ -64,20 +67,18 @@ object KitDeleteNode : CommandNode(
         Param("[id]", suggestRuntime = KitsYml.suggestKits)
     )
 ) {
-    init {
-        onExecute = onExecute@{
-            val id = getParam<String>(0)
-            if (!KitsYml.kits.containsKey(id)) {
-                it.sendColorMessage("&6ID不存在!")
-                return@onExecute
-            }
-            KitsYml.kits.remove(id)
-            KitsYml.save(false)
-            it.sendColorMessage("&6$id &a已删除")
-            true
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val id = params.next<String>()
+        if (!KitsYml.kits.containsKey(id)) {
+            sender.sendColorMessage("&6ID不存在!")
+            return@CommandNodeExecutor
         }
+        KitsYml.removeKit(id)
+        KitsYml.save(false)
+        sender.sendColorMessage("&6$id &a已删除")
     }
 }
+
 
 object KitEditNode : CommandNode(
     "edit", async = true,
@@ -87,22 +88,20 @@ object KitEditNode : CommandNode(
         Param("[id]", suggestRuntime = KitsYml.suggestKits)
     )
 ) {
-    init {
-        onExecute = onExecute@{ sender ->
-            val player = sender as Player
-            val kitYml = getParam<KitYml>(0)
-            val createInventory = Bukkit.createInventory(null, 54, "&a请输入物品".toColor())
-            kitYml.itemStacksImpl.forEach {
-                createInventory.addItem(it)
-            }
-            player.onItemInput(createInventory, true) {
-                kitYml.itemStacksImpl = createInventory.filterNotNull().toMutableList()
-                KitsYml.save(false)
-                sender.sendColorMessage("&6物品添加成功")
-            }
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val player = sender as Player
+        val kitYml = params.next<KitYml>()
+        val createInventory = Bukkit.createInventory(null, 54, "&a请输入物品".toColor())
+        createInventory.addItem(*kitYml.itemStacksImpl.toTypedArray())
+        player.onItemInput(createInventory, true) {
+            kitYml.itemStacksImpl = createInventory.filterNotNull().toMutableList()
+            KitsYml.kitsSection.set(kitYml.id, kitYml.serialize())
+            KitsYml.save(false)
+            sender.sendColorMessage("&6物品添加成功")
         }
     }
 }
+
 
 object KitGiveNode : CommandNode(
     "give",
@@ -112,12 +111,11 @@ object KitGiveNode : CommandNode(
         Param("[player]", suggestRuntime = ParamSuggestCache.playerParam)
     )
 ) {
-    init {
-        onExecute = onExecute@{
-            val kitYml = getParam<KitYml>(0)
-            val player = getParam<Player>(1)
-            kitYml.applyPlayer(player)
-            it.sendColorMessage("&a礼包已给予 &6${player.name}")
-        }
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val kitYml = params.next<KitYml>()
+        val player = params.next<Player>()
+        kitYml.applyPlayer(player)
+        sender.sendColorMessage("&a礼包已给予 &6${player.name}")
     }
+
 }

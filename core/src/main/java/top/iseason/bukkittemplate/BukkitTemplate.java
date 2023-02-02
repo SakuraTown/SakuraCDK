@@ -3,7 +3,8 @@ package top.iseason.bukkittemplate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import top.iseason.bukkittemplate.dependency.DependencyManager;
+import top.iseason.bukkittemplate.dependency.PluginDependency;
+import top.iseason.bukkittemplate.hook.PlaceHolderHook;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,33 +27,19 @@ public class BukkitTemplate extends JavaPlugin {
     private static KotlinPlugin ktPlugin;
     private static BukkitTemplate plugin = null;
 
+    private static boolean offlineLibInstalled = false;
+
     /**
      * 构造方法，负责下载/添加依赖，并启动插件
      */
     public BukkitTemplate() {
         plugin = this;
-        //防止卡主线程
-        CompletableFuture.supplyAsync(() -> {
-            DependencyManager.parsePluginYml();
-            classes = loadClass();
-            return findInstance();
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            onDisable();
-            this.getLogger().warning("插件依赖异常，已注销插件!");
-            return null;
-        }).thenAcceptAsync(instance -> {
-            if (instance == null) return;
-            ktPlugin = instance;
-            instance.onAsyncLoad();
-            setEnabled(true);
-            Bukkit.getScheduler().runTask(this, instance::onEnable);
-            Bukkit.getScheduler().runTaskAsynchronously(this, instance::onAsyncEnable);
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            this.getLogger().warning("插件加载异常!");
-            return null;
-        });
+        offlineLibInstalled = Bukkit.getPluginManager().getPlugin("IseasonOfflineLib") != null;
+        if (!offlineLibInstalled && !PluginDependency.parsePluginYml()) {
+            throw new RuntimeException("Loading dependencies error! please check your network!");
+        }
+        classes = loadClass();
+        ktPlugin = findInstance();
     }
 
 
@@ -144,13 +131,18 @@ public class BukkitTemplate extends JavaPlugin {
         return ktPlugin;
     }
 
-    // 比 onEnabled 先调用
-    public void onAsyncLoad() {
-        ktPlugin.onAsyncLoad();
+    public static boolean isOfflineLibInstalled() {
+        return offlineLibInstalled;
     }
 
-    public void onEnabled() {
-        ktPlugin.onEnable();
+    // 比 onEnabled 先调用
+    public void onAsyncLoad() {
+        ktPlugin.onLoad();
+    }
+
+    @Override
+    public void onLoad() {
+        ktPlugin.onLoad();
     }
 
     public void onAsyncEnabled() {
@@ -166,4 +158,10 @@ public class BukkitTemplate extends JavaPlugin {
         DisableHook.disableAll();
     }
 
+    @Override
+    public void onEnable() {
+        PlaceHolderHook.INSTANCE.checkHooked();
+        ktPlugin.onEnable();
+        CompletableFuture.runAsync(this::onAsyncEnabled);
+    }
 }

@@ -1,10 +1,9 @@
 package top.iseason.bukkit.sakuracdk.data
 
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
+import top.iseason.bukkittemplate.config.StringIdTable
 import top.iseason.bukkittemplate.config.dbTransaction
 import java.time.LocalDateTime
 
@@ -27,9 +26,4 @@ fun <T : Comparable<T>> IdTable<T>.has(id: T): Boolean {
     } catch (e: Exception) {
         false
     }
-}
-
-open class StringIdTable(name: String = "", columnName: String = "id") : IdTable<String>(name) {
-    final override val id: Column<EntityID<String>> = varchar(columnName, 50).entityId().index(isUnique = true)
-    final override val primaryKey = PrimaryKey(id)
 }

@@ -4,6 +4,9 @@ import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
+import top.iseason.bukkittemplate.config.StringEntity
+import top.iseason.bukkittemplate.config.StringEntityClass
+import top.iseason.bukkittemplate.config.StringIdTable
 import top.iseason.bukkittemplate.config.dbTransaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

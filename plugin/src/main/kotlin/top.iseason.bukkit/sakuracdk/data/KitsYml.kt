@@ -29,7 +29,7 @@ object KitsYml : SimpleYAMLConfig() {
         isAutoUpdate = auto_update
         if (!DatabaseConfig.isConnected) {
             warn("&c数据异常，请联系管理员!")
-            return@onLoaded
+            return
         }
         kits.clear()
         kitsSection.getKeys(false).forEach {
@@ -73,5 +73,10 @@ object KitsYml : SimpleYAMLConfig() {
             Kits.deleteAll()
         }
         uploadData()
+    }
+
+    fun removeKit(str: String) {
+        kits.remove(str)
+        kitsSection.set(str, null)
     }
 }

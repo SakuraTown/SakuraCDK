@@ -1,17 +1,18 @@
 package top.iseason.bukkit.sakuracdk.commands
 
 import org.bukkit.entity.Player
-import org.bukkit.permissions.Permission
-import org.bukkit.permissions.PermissionDefault
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
+import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.config.Lang
 import top.iseason.bukkit.sakuracdk.data.*
 import top.iseason.bukkittemplate.command.Param
 import top.iseason.bukkittemplate.command.ParmaException
 import top.iseason.bukkittemplate.command.command
+import top.iseason.bukkittemplate.command.executor
 import top.iseason.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkittemplate.config.dbTransaction
 import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.sendColorMessage
@@ -21,20 +22,23 @@ import java.time.LocalDateTime
 
 fun userCommand() {
     command(
-        "sakuracdk"
+        Config.command_name
     ) {
-        alias = arrayOf("cdk", "scdk")
+        alias = Config.command_alias.toTypedArray()
         description = "使用cdk兑换礼包"
         isPlayerOnly = true
-        permission = Permission("sakuracdk.use", PermissionDefault.TRUE)
         async = true
         params = listOf(Param("[cdk]"))
-        onExecute = {
-            if (EasyCoolDown.check(it, 1000)) throw ParmaException(Lang.command__user_send_too_fast)
+        executor { params, sender ->
+            if (EasyCoolDown.check(
+                    sender,
+                    Config.command_cooldown
+                )
+            ) throw ParmaException(Lang.command__user_send_too_fast)
             if (!DatabaseConfig.isConnected) throw ParmaException(Lang.command__user_database_closed)
-            val cdk = getParam<String>(0).trim()
+            val cdk = params.next<String>()
             var cdkYml: BaseCDK? = null
-            val player = it as Player
+            val player = sender as Player
             val uniqueId = player.uniqueId
             var groupTemp: String?
             dbTransaction {
@@ -63,7 +67,7 @@ fun userCommand() {
                     if (cdkYml is NormalCDKYml) {
                         val exist = Records.slice(Records.id.count()).select { Records.group eq group }
                             .first()[Records.id.count()]
-                        if (exist > (cdkYml as NormalCDKYml).amount) throw ParmaException(Lang.command__user_normal_brought_out)
+                        if (exist >= (cdkYml as NormalCDKYml).amount) throw ParmaException(Lang.command__user_normal_brought_out)
                     }
                 }
                 Record.new {

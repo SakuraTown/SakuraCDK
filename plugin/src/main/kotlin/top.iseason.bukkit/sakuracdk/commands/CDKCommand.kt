@@ -13,6 +13,7 @@ import top.iseason.bukkit.sakuracdk.data.NormalCDK
 import top.iseason.bukkit.sakuracdk.data.RandomCDK
 import top.iseason.bukkit.sakuracdk.data.Records
 import top.iseason.bukkittemplate.command.CommandNode
+import top.iseason.bukkittemplate.command.CommandNodeExecutor
 import top.iseason.bukkittemplate.command.Param
 import top.iseason.bukkittemplate.command.ParmaException
 import top.iseason.bukkittemplate.config.dbTransaction
@@ -30,35 +31,33 @@ object CDKCreateNode : CommandNode(
     async = true,
     params = listOf(Param("[id]"), Param("[amount]"))
 ) {
-    init {
-        onExecute = {
-            val id = getParam<String>(0)
-            val amount = getParam<Int>(1)
-            val file = File(SakuraCDK.javaPlugin.dataFolder, "random${File.separatorChar}${id}.txt")
-            if (file.exists()) throw ParmaException("&c文件已存在!")
-            dbTransaction {
-                if (!CDKs.select { CDKs.group eq id }.limit(1).empty()) {
-                    throw ParmaException("&c文件已存在!")
-                }
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val id = params.next<String>()
+        val amount = params.next<Int>()
+        val file = File(SakuraCDK.javaPlugin.dataFolder, "random${File.separatorChar}${id}.txt")
+        if (file.exists()) throw ParmaException("&c文件已存在!")
+        dbTransaction {
+            if (!CDKs.select { CDKs.group eq id }.limit(1).empty()) {
+                throw ParmaException("&c文件已存在!")
             }
-            file.parentFile.mkdirs()
-            file.createNewFile()
-            BufferedWriter(OutputStreamWriter(FileOutputStream(file))).use { bw ->
-                dbTransaction {
-                    repeat(amount) {
-                        val replaceRandom = Utils.replaceRandom(Config.cdkTemplate)
-                        bw.write(replaceRandom)
-                        bw.newLine()
-                        CDKs.insert {
-                            it[CDKs.id] = replaceRandom
-                            it[CDKs.group] = id
-                            it[CDKs.type] = "random"
-                        }
+        }
+        file.parentFile.mkdirs()
+        file.createNewFile()
+        BufferedWriter(OutputStreamWriter(FileOutputStream(file))).use { bw ->
+            dbTransaction {
+                repeat(amount) {
+                    val replaceRandom = Utils.replaceRandom(Config.cdkTemplate)
+                    bw.write(replaceRandom)
+                    bw.newLine()
+                    CDKs.insert {
+                        it[CDKs.id] = replaceRandom
+                        it[CDKs.group] = id
+                        it[CDKs.type] = "random"
                     }
                 }
             }
-            it.sendColorMessage("文件已创建!")
         }
+        sender.sendColorMessage("文件已创建!")
     }
 }
 
@@ -69,37 +68,36 @@ object CDKInfoNode : CommandNode(
     async = true,
     params = listOf(Param("[cdk]"))
 ) {
-    init {
-        onExecute = {
-            val cdk = getParam<String>(0)
-            val mutableListOf = mutableListOf<String>()
-            dbTransaction {
-                val cdks = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull() ?: throw ParmaException("&6cdk不存在")
-                mutableListOf.add("&aCDK: &6${cdk}")
-                val group = cdks[CDKs.group]
-                val type = cdks[CDKs.type]
-                if (type == "random") {
-                    val findById = RandomCDK.findById(group) ?: throw ParmaException("cdk不存在")
-                    val count =
-                        CDKs.slice(CDKs.id.count()).select { CDKs.group eq group and (CDKs.type eq "random") }
-                            .first()[CDKs.id.count()]
-                    mutableListOf.add("&a类型: &6random")
-                    mutableListOf.add("&a群组: &6$group")
-                    mutableListOf.add("&a余量: &6$count")
-                    mutableListOf.add("&a过期: &6${findById.expire}")
-                    mutableListOf.add("&a礼包: &6${findById.kits}")
-                } else if (type == "normal") {
-                    val findById = NormalCDK.findById(group) ?: throw ParmaException("cdk不存在")
-                    val count = Records.slice(Records.id.count()).select { Records.group eq group }
-                        .first()[Records.id.count()]
-                    mutableListOf.add("&a类型: &6normal")
-                    mutableListOf.add("&a总量: &6${findById.amount}")
-                    mutableListOf.add("&a余量: &6${findById.amount - count}")
-                    mutableListOf.add("&a过期: &6${findById.expire}")
-                    mutableListOf.add("&a礼包: &6${findById.kits}")
-                } else throw ParmaException("cdk不存在")
-                it.sendColorMessages(mutableListOf)
-            }
+    override var onExecute: CommandNodeExecutor? = CommandNodeExecutor { params, sender ->
+        val cdk = params.next<String>()
+        val mutableListOf = mutableListOf<String>()
+        dbTransaction {
+            val cdks = CDKs.select { CDKs.id eq cdk }.limit(1).firstOrNull() ?: throw ParmaException("&6cdk不存在")
+            mutableListOf.add("&aCDK: &6${cdk}")
+            val group = cdks[CDKs.group]
+            val type = cdks[CDKs.type]
+            if (type == "random") {
+                val findById = RandomCDK.findById(group) ?: throw ParmaException("cdk不存在")
+                val count =
+                    CDKs.slice(CDKs.id.count()).select { CDKs.group eq group and (CDKs.type eq "random") }
+                        .first()[CDKs.id.count()]
+                mutableListOf.add("&a类型: &6random")
+                mutableListOf.add("&a群组: &6$group")
+                mutableListOf.add("&a余量: &6$count")
+                mutableListOf.add("&a过期: &6${findById.expire}")
+                mutableListOf.add("&a礼包: &6${findById.kits}")
+            } else if (type == "normal") {
+                val findById = NormalCDK.findById(group) ?: throw ParmaException("cdk不存在")
+                val count = Records.slice(Records.id.count()).select { Records.group eq group }
+                    .first()[Records.id.count()]
+                mutableListOf.add("&a类型: &6normal")
+                mutableListOf.add("&a总量: &6${findById.amount}")
+                mutableListOf.add("&a余量: &6${findById.amount - count}")
+                mutableListOf.add("&a过期: &6${findById.expire}")
+                mutableListOf.add("&a礼包: &6${findById.kits}")
+            } else throw ParmaException("cdk不存在")
+            sender.sendColorMessages(mutableListOf)
         }
     }
 }
+

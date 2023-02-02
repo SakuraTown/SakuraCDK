@@ -1,6 +1,7 @@
 package top.iseason.bukkit.sakuracdk.data
 
 import org.jetbrains.exposed.sql.select
+import top.iseason.bukkittemplate.config.StringIdTable
 import top.iseason.bukkittemplate.config.dbTransaction
 
 object CDKs : StringIdTable() {

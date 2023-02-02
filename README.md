@@ -2,13 +2,19 @@
 
 一款简易的CDK系统
 
+## 使用场景
+
+* 制作口令cdk, 如 xxx节快乐
+* 制作随机cdk, 如 xxx-xxxx-xxxxx 的形式，可修改模板
+
 ## 特点
 
 * 简单易用
-* 支持数据库 MySQL、MariaDB、SQLite、H2、Oracle、PostgreSQL、SQLServer
+* 支持跨服, 数据库类型 MySQL、MariaDB、SQLite、Oracle、PostgreSQL、SQLServer
 * 发放命令与物品
 * 全程异步运行，主线程0影响 (除了运行礼包命令)
-* 支持热重载
+* 自动重载配置，解放命令
+* cdk\kit 支持限时限量
 
 ## 使用方法
 
@@ -20,11 +26,21 @@
 
 **数据库**
 
-插件默认使用H2 数据库，
+插件默认使用 Sqlite 数据库，在1.12.2以下的版本中可能报错，请改为其他数据库
 
 更多信息请在`config.yml`中修改
 
-所有配置自动重载，无需使用命令重载
+所有配置自动重载，无需使用命令重载。 但如果自动重载失效也可使用
+`cdkadmin reload` 命令重载
+
+**cdk说明**
+cdk由2部分构成: `cdk`、和`kit`
+
+cdk 包括口令cdk和随机cdk2种, 每个随机cdk只能使用一次
+
+kit包含物品或命令, 当玩家兑换cdk时将会给予对应的kit
+
+一个kit可以被多个cdk重复使用
 
 **先创建 kit**
 
@@ -119,15 +135,17 @@ type同以上
 
 ## 用户使用
 
-玩家输入 `/cdk [cdk]`来兑换cdk
+玩家输入 `/sakuracdk [cdk]`来兑换cdk
+
+可在`config.yml` 中 修改 `sakuracdk` 和别名
+
+该命令权限等于sakuracdk.命令名, 如: sakuracdk.sakuracdk
 
 ## 其他
 
 命令可以通过输入`/cdkadmin `来查看更多管理命令
 
-玩家命令只有/cdk 一条
-当命令冲突时可以使用
-`/sakuracdk` 或 `/cdks`
+玩家默认有权限的命令只有/sakuracdk 一条
 
 ## 命令权限
 

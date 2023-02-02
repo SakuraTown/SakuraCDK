@@ -17,17 +17,9 @@ import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.toColor
 object SakuraCDK : KotlinPlugin() {
 
     override fun onEnable() {
-//        SimpleLogger.isDebug = true
         SimpleLogger.prefix = "&a[&6${javaPlugin.description.name}&a]&r ".toColor()
         MessageUtils.defaultPrefix = SimpleLogger.prefix
         SimpleYAMLConfig.notifyMessage = "&7配置文件 &6%s &7已重载!"
-    }
-
-    override fun onAsyncEnable() {
-
-        SakuraCDK.javaPlugin.saveResource("cdk.yml", false)
-        SakuraCDK.javaPlugin.saveResource("kits.yml", false)
-//        ConfigurationSerialization.registerClass(KitYml::class.java)
         Config.load(false)
         DatabaseConfig.load(false)
         DatabaseConfig.initTables(Kits, Records, NormalCDKs, RandomCDKs, CDKs)
