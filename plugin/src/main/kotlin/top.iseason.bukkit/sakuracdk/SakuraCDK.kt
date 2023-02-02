@@ -1,5 +1,6 @@
 package top.iseason.bukkit.sakuracdk
 
+import org.bstats.bukkit.Metrics
 import top.iseason.bukkit.sakuracdk.commands.cdkAdminCommands
 import top.iseason.bukkit.sakuracdk.commands.userCommand
 import top.iseason.bukkit.sakuracdk.config.Config
@@ -17,6 +18,7 @@ import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.toColor
 object SakuraCDK : KotlinPlugin() {
 
     override fun onEnable() {
+        Metrics(javaPlugin, 17617)
         SimpleLogger.prefix = "&a[&6${javaPlugin.description.name}&a]&r ".toColor()
         MessageUtils.defaultPrefix = SimpleLogger.prefix
         SimpleYAMLConfig.notifyMessage = "&7配置文件 &6%s &7已重载!"

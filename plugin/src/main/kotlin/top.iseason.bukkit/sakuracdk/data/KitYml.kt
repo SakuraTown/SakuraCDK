@@ -71,7 +71,8 @@ class KitYml(
             playerCommand = playerCommand.removePrefix("CMD:")
             try {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), playerCommand)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         } else if (playerCommand.startsWith("OP:")) {
             playerCommand = playerCommand.removePrefix("OP:")
@@ -80,17 +81,23 @@ class KitYml(
                 player.isOp = true
                 try {
                     Bukkit.dispatchCommand(player, playerCommand)
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 } finally {
                     player.isOp = false
                 }
             } else {
-                Bukkit.dispatchCommand(player, playerCommand)
+                try {
+                    Bukkit.dispatchCommand(player, playerCommand)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         } else {
             try {
                 Bukkit.dispatchCommand(player, playerCommand)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 

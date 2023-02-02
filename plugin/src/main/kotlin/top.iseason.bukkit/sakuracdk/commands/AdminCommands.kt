@@ -31,14 +31,6 @@ fun cdkAdminCommands() {
         isPlayerOnly = true
         async = true
         params = listOf(Param("[cdk]"))
-        node("reload") {
-            default = PermissionDefault.OP
-            async = true
-            description = "重载配置"
-            executor { params, sender ->
-                KitsYml.load()
-            }
-        }
         node(
             "download"
         ) {

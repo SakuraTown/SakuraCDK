@@ -1,11 +1,11 @@
 # SakuraCDK
 
-一款简易的CDK系统
+一款纯粹的CDK系统
 
 ## 使用场景
 
-* 制作口令cdk, 如 xxx节快乐
-* 制作随机cdk, 如 xxx-xxxx-xxxxx 的形式，可修改模板
+* 制作口令cdk礼包, 如 输入 xxx节快乐 领取礼包
+* 制作随机cdk礼包, 如 输入 a56D-NI41H-XK51DG 领取礼包，可修改模板
 
 ## 特点
 
@@ -15,6 +15,7 @@
 * 全程异步运行，主线程0影响 (除了运行礼包命令)
 * 自动重载配置，解放命令
 * cdk\kit 支持限时限量
+* 丰富的消息API
 
 ## 使用方法
 
@@ -152,3 +153,8 @@ type同以上
 命令权限为sakuracdk.节点名称
 
 比如`/cdkadmin kit edit` 的权限为`sakuracdk.cdkadmin.kit.edit`
+
+## 下载
+
+Github: https://github.com/SakuraTown/SakuraCDK/releases
+蓝奏: https://iseason.lanzouf.com/b00qn5cif  密码:6g2e
