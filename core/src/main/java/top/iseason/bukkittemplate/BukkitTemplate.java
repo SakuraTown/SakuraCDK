@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import top.iseason.bukkittemplate.dependency.PluginDependency;
+import top.iseason.bukkittemplate.hook.BungeeCordHook;
 import top.iseason.bukkittemplate.hook.PlaceHolderHook;
 
 import java.io.File;
@@ -131,10 +132,6 @@ public class BukkitTemplate extends JavaPlugin {
         return ktPlugin;
     }
 
-    public static boolean isOfflineLibInstalled() {
-        return offlineLibInstalled;
-    }
-
     // 比 onEnabled 先调用
     public void onAsyncLoad() {
         ktPlugin.onLoad();
@@ -145,8 +142,25 @@ public class BukkitTemplate extends JavaPlugin {
         ktPlugin.onLoad();
     }
 
+    public static boolean isOfflineLibInstalled() {
+        return offlineLibInstalled;
+    }
+
     public void onAsyncEnabled() {
         ktPlugin.onAsyncEnable();
+    }
+
+    @Override
+    public void onEnable() {
+        try {
+            PlaceHolderHook.INSTANCE.checkHooked();
+            BungeeCordHook.onEnable();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        } finally {
+            ktPlugin.onEnable();
+            CompletableFuture.runAsync(this::onAsyncEnabled);
+        }
     }
 
     @Override
@@ -156,12 +170,8 @@ public class BukkitTemplate extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
         DisableHook.disableAll();
+        BungeeCordHook.onDisable();
     }
 
-    @Override
-    public void onEnable() {
-        PlaceHolderHook.INSTANCE.checkHooked();
-        ktPlugin.onEnable();
-        CompletableFuture.runAsync(this::onAsyncEnabled);
-    }
+
 }

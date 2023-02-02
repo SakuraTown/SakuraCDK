@@ -30,7 +30,7 @@ object DatabaseConfig : SimpleYAMLConfig() {
     @Comment("", "修改完配置保存时是否自动重连数据库")
     var autoReload = true
 
-    @Comment("", "数据库类型: 支持 MySQL、MariaDB、SQLite、H2、Oracle、PostgreSQL、SQLServer")
+    @Comment("", "数据库类型: 支持 MySQL、MariaDB、SQLite、Oracle、PostgreSQL、SQLServer")
     @Key
     var database_type = "SQLite"
 
@@ -186,10 +186,10 @@ object DatabaseConfig : SimpleYAMLConfig() {
                     jdbcUrl = "jdbc:sqlite:$address$params"
                     driverClassName = "org.sqlite.JDBC"
                 }
-
+// 由于exposed的bug暂时无法使用
 //                "H2" -> HikariConfig().apply {
 //                    dd.downloadDependency("com.h2database:h2:2.1.214")
-//                    jdbcUrl = "jdbc:h2:$address/$database_name$params"
+//                    jdbcUrl = "jdbc:h2:$url/$dbName$params"
 //                    driverClassName = "org.h2.Driver"
 //                }
 
@@ -234,7 +234,6 @@ object DatabaseConfig : SimpleYAMLConfig() {
             info("&a数据库链接成功: &6$database_type")
         }.getOrElse {
             isConnected = false
-            it.printStackTrace()
             info("&c数据库链接失败! 请检查数据库状态或数据库配置!")
         }
         isConnecting = false
@@ -259,7 +258,7 @@ object DatabaseConfig : SimpleYAMLConfig() {
         if (!isConnected) return
         this.tables = tables
         runCatching {
-            dbTransaction {
+            transaction {
                 SchemaUtils.createMissingTablesAndColumns(*tables)
 //                SchemaUtils.create(*tables)
             }
