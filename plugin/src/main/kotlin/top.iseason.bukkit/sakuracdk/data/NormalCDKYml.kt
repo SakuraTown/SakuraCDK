@@ -78,7 +78,7 @@ class NormalCDKYml(
 object NormalCDKs : StringIdTable() {
     //随机cdk的群组
     val expire = datetime("expire").default(LocalDateTime.now())
-    val kits = text("kits").default("")
+    val kits = text("kits")
     val amount = integer("amount").default(10)
 }
 
@@ -91,10 +91,12 @@ class NormalCDK(id: EntityID<String>) : StringEntity(id) {
 
     fun toYml(): NormalCDKYml {
         val kitYmls = mutableListOf<KitYml>()
-        dbTransaction {
-            for (s in kits.split(";")) {
-                val findById = Kit.findById(s) ?: continue
-                kitYmls.add(findById.toKitYml())
+        if (kits.isNotBlank()) {
+            dbTransaction {
+                for (s in kits.split(";")) {
+                    val findById = Kit.findById(s) ?: continue
+                    kitYmls.add(findById.toKitYml())
+                }
             }
         }
         val normalCDKYml = NormalCDKYml(id.value, amount, expire, kitYmls)

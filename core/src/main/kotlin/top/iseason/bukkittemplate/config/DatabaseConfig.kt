@@ -233,6 +233,7 @@ object DatabaseConfig : SimpleYAMLConfig() {
             isConnected = true
             info("&a数据库链接成功: &6$database_type")
         }.getOrElse {
+            it.printStackTrace()
             isConnected = false
             info("&c数据库链接失败! 请检查数据库状态或数据库配置!")
         }

@@ -116,7 +116,7 @@ class RandomCDKYml(
 object RandomCDKs : StringIdTable() {
     //随机cdk的群组
     val expire = datetime("expire").default(LocalDateTime.now())
-    val kits = text("kits").default("")
+    val kits = text("kits")
     val repeat = bool("repeat").default(false)
 }
 
@@ -131,12 +131,14 @@ class RandomCDK(id: EntityID<String>) : StringEntity(id) {
         val kitYmls = mutableListOf<KitYml>()
         var cdks: HashSet<String> = hashSetOf()
         val group = id.value
-        dbTransaction {
-            for (s in kits.split(";")) {
-                val findById = Kit.findById(s) ?: continue
-                kitYmls.add(findById.toKitYml())
+        if (kits.isNotBlank()) {
+            dbTransaction {
+                for (s in kits.split(";")) {
+                    val findById = Kit.findById(s) ?: continue
+                    kitYmls.add(findById.toKitYml())
+                }
+                cdks = CDKs.slice(CDKs.id).select { CDKs.group eq group }.map { it[CDKs.id].value }.toHashSet()
             }
-            cdks = CDKs.slice(CDKs.id).select { CDKs.group eq group }.map { it[CDKs.id].value }.toHashSet()
         }
         val randomCDKYml = RandomCDKYml(group, expire, kitYmls, cdks)
         randomCDKYml.allowRepeat = repeat
