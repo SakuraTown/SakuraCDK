@@ -17,8 +17,8 @@ import java.time.format.DateTimeFormatter
 
 class KitYml(
     val id: String,
-    val create: LocalDateTime,
-    val expire: LocalDateTime
+    private val create: LocalDateTime,
+    private val expire: LocalDateTime
 ) {
 
     //过期时间
@@ -42,6 +42,7 @@ class KitYml(
             }
             if (commandsImpl.isNotEmpty())
                 kit.commands = commandsImpl.toDataString()
+            else kit.commands = ""
             if (itemStacksImpl.isNotEmpty())
                 kit.itemStacks = ExposedBlob(itemStacksImpl.toByteArray())
         }
