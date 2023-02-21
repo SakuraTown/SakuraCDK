@@ -61,7 +61,7 @@ fun userCommand() {
                 if (cdkYml!!.checkExpire()) throw ParmaException(Lang.command__user_cdk_is_expire)
                 //检查重复领取
                 if (!cdkYml!!.allowRepeat()) {
-                    if (!Records.select { Records.cdk eq cdk and (Records.uid eq uniqueId) }.limit(1).empty()) {
+                    if (!Records.select { Records.group eq group and (Records.uid eq uniqueId) }.limit(1).empty()) {
                         throw ParmaException(Lang.command__user_has_accepted)
                     }
                     if (cdkYml is NormalCDKYml) {

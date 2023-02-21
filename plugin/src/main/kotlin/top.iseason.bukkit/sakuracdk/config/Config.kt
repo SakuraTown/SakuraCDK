@@ -13,7 +13,7 @@ object Config : SimpleYAMLConfig() {
 
     //加密数据
     @Key
-    @Comment("是否压缩加密物品，压缩完无法直接编辑，只能从命令修改", "1.7不支持编辑物品，请保持此项为false")
+    @Comment("是否压缩加密物品，压缩完无法直接编辑，只能从命令修改", "1.7不支持编辑物品，请保持此项为true")
     var enciphered = true
 
     @Key
