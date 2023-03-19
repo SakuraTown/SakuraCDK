@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.entity
 
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player

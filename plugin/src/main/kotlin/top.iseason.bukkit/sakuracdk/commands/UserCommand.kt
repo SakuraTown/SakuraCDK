@@ -1,5 +1,6 @@
 package top.iseason.bukkit.sakuracdk.commands
 
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -8,7 +9,8 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.config.Lang
-import top.iseason.bukkit.sakuracdk.data.*
+import top.iseason.bukkit.sakuracdk.entity.*
+import top.iseason.bukkit.sakuracdk.event.CDKAcceptEvent
 import top.iseason.bukkittemplate.command.Param
 import top.iseason.bukkittemplate.command.ParmaException
 import top.iseason.bukkittemplate.command.command
@@ -70,6 +72,9 @@ fun userCommand() {
                         if (exist >= (cdkYml as NormalCDKYml).amount) throw ParmaException(Lang.command__user_normal_brought_out)
                     }
                 }
+                val cdkAcceptEvent = CDKAcceptEvent(player, cdkYml!!)
+                Bukkit.getPluginManager().callEvent(cdkAcceptEvent)
+                if (cdkAcceptEvent.isCancelled) throw ParmaException("领取失败!")
                 Record.new {
                     this.uid = uniqueId
                     this.cdk = cdk

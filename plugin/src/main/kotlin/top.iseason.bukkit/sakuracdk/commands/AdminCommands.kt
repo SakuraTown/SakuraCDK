@@ -4,12 +4,9 @@ import org.bukkit.permissions.PermissionDefault
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.between
 import org.jetbrains.exposed.sql.deleteWhere
 import top.iseason.bukkit.sakuracdk.Utils
-import top.iseason.bukkit.sakuracdk.config.Config
-import top.iseason.bukkit.sakuracdk.config.Lang
-import top.iseason.bukkit.sakuracdk.data.CDKs
-import top.iseason.bukkit.sakuracdk.data.CDKsYml
-import top.iseason.bukkit.sakuracdk.data.KitsYml
-import top.iseason.bukkit.sakuracdk.data.Records
+import top.iseason.bukkit.sakuracdk.config.*
+import top.iseason.bukkit.sakuracdk.entity.CDKs
+import top.iseason.bukkit.sakuracdk.entity.Records
 import top.iseason.bukkittemplate.command.Param
 import top.iseason.bukkittemplate.command.command
 import top.iseason.bukkittemplate.command.executor
@@ -133,6 +130,7 @@ fun cdkAdminCommands() {
                 DatabaseConfig.reConnected()
                 KitsYml.load()
                 CDKsYml.load()
+                RewardsYml.load()
                 sender.sendColorMessage(Lang.command__reload)
             }
         }

@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.3.1")
+        classpath("com.guardsquare:proguard-gradle:7.3.2")
     }
 }
 subprojects {
@@ -23,9 +23,13 @@ subprojects {
 //    阿里的服务器速度快一点
         maven {
             name = "aliyun"
-            url = uri("https://maven.aliyun.com/repository/public/")
+            url = uri("https://maven.aliyun.com/repository/public")
         }
-        google()
+        maven {
+            name = "aliyun-google"
+            url = uri("https://maven.aliyun.com/repository/google")
+        }
+//        google()
         mavenCentral()
         maven {
             name = "spigot"
@@ -43,8 +47,10 @@ subprojects {
     }
 
     dependencies {
+        val kotlinVersion: String by rootProject
+        compileOnly(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
         //基础库
-        compileOnly(kotlin("stdlib-jdk8"))
+        compileOnly(kotlin("stdlib"))
         // 数据库
         val exposedVersion: String by rootProject
         compileOnly("org.jetbrains.exposed:exposed-core:$exposedVersion")
@@ -61,6 +67,7 @@ subprojects {
             targetCompatibility = "1.8"
         }
     }
+
 }
 
 repositories {

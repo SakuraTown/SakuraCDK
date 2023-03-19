@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.entity
 
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass

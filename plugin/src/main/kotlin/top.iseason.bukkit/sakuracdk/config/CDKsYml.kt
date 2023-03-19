@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.config
 
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import top.iseason.bukkit.sakuracdk.SakuraCDK
+import top.iseason.bukkit.sakuracdk.entity.*
 import top.iseason.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkittemplate.config.dbTransaction
@@ -58,7 +59,7 @@ object CDKsYml : SimpleYAMLConfig() {
      */
     fun updateRandomData() {
         dbTransaction {
-            CDKs.deleteWhere { CDKs.type eq "random" }
+            CDKs.deleteWhere { type eq "random" }
             val file = File(SakuraCDK.javaPlugin.dataFolder, "random")
             if (!file.exists()) return@dbTransaction
             file.listFiles()?.forEach {

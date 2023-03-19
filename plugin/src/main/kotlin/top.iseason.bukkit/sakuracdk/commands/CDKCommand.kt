@@ -8,10 +8,10 @@ import org.jetbrains.exposed.sql.select
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import top.iseason.bukkit.sakuracdk.Utils
 import top.iseason.bukkit.sakuracdk.config.Config
-import top.iseason.bukkit.sakuracdk.data.CDKs
-import top.iseason.bukkit.sakuracdk.data.NormalCDK
-import top.iseason.bukkit.sakuracdk.data.RandomCDK
-import top.iseason.bukkit.sakuracdk.data.Records
+import top.iseason.bukkit.sakuracdk.entity.CDKs
+import top.iseason.bukkit.sakuracdk.entity.NormalCDK
+import top.iseason.bukkit.sakuracdk.entity.RandomCDK
+import top.iseason.bukkit.sakuracdk.entity.Records
 import top.iseason.bukkittemplate.command.CommandNode
 import top.iseason.bukkittemplate.command.CommandNodeExecutor
 import top.iseason.bukkittemplate.command.Param

@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.entity
 
 import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
@@ -7,6 +7,8 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
 import top.iseason.bukkit.sakuracdk.SakuraCDK
+import top.iseason.bukkit.sakuracdk.config.CDKsYml
+import top.iseason.bukkit.sakuracdk.config.KitsYml
 import top.iseason.bukkittemplate.config.StringEntity
 import top.iseason.bukkittemplate.config.StringEntityClass
 import top.iseason.bukkittemplate.config.StringIdTable

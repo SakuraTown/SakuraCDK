@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.entity
 
 import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.StringIdTable

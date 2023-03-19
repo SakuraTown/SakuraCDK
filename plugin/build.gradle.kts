@@ -18,6 +18,7 @@ dependencies {
     // 本地依赖放在libs文件夹内
     compileOnly(fileTree("libs") { include("*.jar") })
     implementation("org.bstats:bstats-bukkit:3.0.0")
+    compileOnly("fr.xephi:authme:5.6.0-SNAPSHOT") { isTransitive = false }
     compileOnly("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
 }
 
@@ -49,6 +50,7 @@ val output =
 
 tasks {
     shadowJar {
+
         if (isObfuscated) {
             relocate("top.iseason.bukkittemplate.BukkitTemplate", "a")
         }
@@ -66,7 +68,7 @@ tasks {
         filesMatching("plugin.yml") {
             // 删除注释,你可以返回null以删除整行，但是IDEA有bug会报错，故而返回了""
             filter {
-                if (it.trim().startsWith("#")) "" else it
+                if (it.trim().startsWith("#")) null else it
             }
             expand(
                 "main" to if (isObfuscated) "a" else "$groupS.libs.core.BukkitTemplate",
@@ -79,12 +81,6 @@ tasks {
         }
     }
 }
-task<com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation>("relocateShadowJar") {
-    target = tasks.shadowJar.get()
-    prefix = "$groupS.libs"
-    shadowJar.minimize()
-}
-tasks.shadowJar.get().dependsOn(tasks.getByName("relocateShadowJar"))
 
 tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
     group = "minecraft"
@@ -121,7 +117,7 @@ tasks.register<proguard.gradle.ProGuardTask>("buildPlugin") {
     else keep("class $groupS.libs.core.BukkitTemplate {}")
     keep("class kotlin.Metadata {}")
     keep(allowObf, "class $groupS.libs.core.PluginBootStrap {*;}")
-    keep(allowObf, "class * implements $groupS.libs.core.KotlinPlugin {*;}")
+    keep(allowObf, "class * implements $groupS.libs.core.BukkitPlugin {*;}")
     keepclassmembers("class * extends $groupS.libs.core.config.SimpleYAMLConfig {*;}")
     keepclassmembers("class * implements $groupS.libs.core.ui.container.BaseUI {*;}")
     keepclassmembers(allowObf, "class * implements org.bukkit.event.Listener {*;}")

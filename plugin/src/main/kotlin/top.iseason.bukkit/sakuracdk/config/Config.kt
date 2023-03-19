@@ -11,6 +11,10 @@ object Config : SimpleYAMLConfig() {
     @Comment("", "随机cdk模板，X将被替换为随机字符")
     var cdkTemplate = "XXXX-XXXXXXXX"
 
+    @Key
+    @Comment("", "是否启用邀请码机制,重启生效")
+    var enableOwnerReward = false
+
     //加密数据
     @Key
     @Comment("是否压缩加密物品，压缩完无法直接编辑，只能从命令修改", "1.7不支持编辑物品，请保持此项为true")

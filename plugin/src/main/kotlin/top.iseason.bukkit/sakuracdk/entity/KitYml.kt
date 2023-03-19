@@ -1,4 +1,4 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.entity
 
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration

@@ -4,8 +4,8 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionDefault
 import top.iseason.bukkit.sakuracdk.Utils
-import top.iseason.bukkit.sakuracdk.data.KitYml
-import top.iseason.bukkit.sakuracdk.data.KitsYml
+import top.iseason.bukkit.sakuracdk.config.KitsYml
+import top.iseason.bukkit.sakuracdk.entity.KitYml
 import top.iseason.bukkittemplate.command.CommandNode
 import top.iseason.bukkittemplate.command.CommandNodeExecutor
 import top.iseason.bukkittemplate.command.Param

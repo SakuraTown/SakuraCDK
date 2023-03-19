@@ -1,10 +1,13 @@
-package top.iseason.bukkit.sakuracdk.data
+package top.iseason.bukkit.sakuracdk.config
 
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.MemorySection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.jetbrains.exposed.sql.deleteAll
+import top.iseason.bukkit.sakuracdk.entity.Kit
+import top.iseason.bukkit.sakuracdk.entity.KitYml
+import top.iseason.bukkit.sakuracdk.entity.Kits
 import top.iseason.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkittemplate.config.annotations.Comment
