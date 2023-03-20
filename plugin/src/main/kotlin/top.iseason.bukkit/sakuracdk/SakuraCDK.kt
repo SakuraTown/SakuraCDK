@@ -8,6 +8,7 @@ import top.iseason.bukkit.sakuracdk.commands.userCommand
 import top.iseason.bukkit.sakuracdk.config.*
 import top.iseason.bukkit.sakuracdk.entity.*
 import top.iseason.bukkit.sakuracdk.hook.AuthMeHook
+import top.iseason.bukkit.sakuracdk.hook.PAPIExpansion
 import top.iseason.bukkit.sakuracdk.listener.RewardListener
 import top.iseason.bukkittemplate.BukkitPlugin
 import top.iseason.bukkittemplate.command.CommandHandler
@@ -35,6 +36,7 @@ object SakuraCDK : BukkitPlugin {
         //如果使用命令模块，取消注释
         CommandHandler.updateCommands()
         AuthMeHook.checkHooked()
+        PAPIExpansion.register()
         if (Config.enableOwnerReward) {
             RewardsYml.load(false)
             RewardListener.register()
@@ -48,6 +50,7 @@ object SakuraCDK : BukkitPlugin {
                 }
             }
         }
+        javaPlugin.saveResource("placeholders.yml", true)
         info("&a插件已启用!")
     }
 

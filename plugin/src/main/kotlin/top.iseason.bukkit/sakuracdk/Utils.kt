@@ -1,11 +1,12 @@
 package top.iseason.bukkit.sakuracdk
 
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 object Utils {
     private val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
-
+    val formater = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     //获取一定时间间隔后的时间，例如 "1Y2M3W4d5h6m7s" 可随意组合
     fun parseTimeAfter(str: String): LocalDateTime {
         val compile = Pattern.compile("([0-9]+)([a-zA-Z]+)")

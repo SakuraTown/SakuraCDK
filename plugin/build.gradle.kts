@@ -4,6 +4,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
 }
 
 dependencies {
@@ -19,6 +20,7 @@ dependencies {
     compileOnly(fileTree("libs") { include("*.jar") })
     implementation("org.bstats:bstats-bukkit:3.0.0")
     compileOnly("fr.xephi:authme:5.6.0-SNAPSHOT") { isTransitive = false }
+    compileOnly("me.clip:placeholderapi:2.11.2")
     compileOnly("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
 }
 

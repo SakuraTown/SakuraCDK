@@ -23,7 +23,7 @@ class RandomCDKYml(
     val group: String,
     expire: LocalDateTime,
     kits: List<KitYml>,
-    private val cdkSet: HashSet<String>
+    val cdkSet: HashSet<String>
 ) : BaseCDK(group, expire, kits) {
 
     var allowRepeat = false

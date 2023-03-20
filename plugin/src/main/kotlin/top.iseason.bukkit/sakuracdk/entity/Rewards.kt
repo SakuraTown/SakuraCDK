@@ -3,12 +3,14 @@ package top.iseason.bukkit.sakuracdk.entity
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitTask
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.dbTransaction
 import top.iseason.bukkittemplate.hook.PlaceHolderHook
 import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.sendColorMessages
+import top.iseason.bukkittemplate.utils.other.submit
 
 data class Rewards(
     val id: String,
@@ -19,7 +21,7 @@ data class Rewards(
 ) {
 
     fun applyOnline() {
-        val playerList = players.mapNotNull { Bukkit.getPlayer(it) }.forEach {
+        players.mapNotNull { Bukkit.getPlayer(it) }.forEach {
             applyFor(it, 1)
         }
     }
@@ -39,30 +41,42 @@ data class Rewards(
     }
 
     fun applyFor(player: Player, count: Int) {
-        commands.forEach {
-            kotlin.runCatching {
-                Bukkit.dispatchCommand(
-                    Bukkit.getConsoleSender(),
-                    PlaceHolderHook.setPlaceHolder(
-                        it.replace("%player%", player.name)
-                            .replace("%remain%", count.toString()), player
-                    )
-                )
-            }.getOrElse { it.printStackTrace() }
-        }
-        repeat(count) {
-            commandsRepeat.forEach {
+        submit {
+            commands.forEach {
                 kotlin.runCatching {
                     Bukkit.dispatchCommand(
                         Bukkit.getConsoleSender(),
                         PlaceHolderHook.setPlaceHolder(
-                            it.replace("%player%", player.name), player
+                            it.replace("%player%", player.name)
+                                .replace("%remain%", count.toString()), player
                         )
                     )
                 }.getOrElse { it.printStackTrace() }
             }
         }
-        player.sendColorMessages(message)
+        var times = 0
+        val max = count / 5 + 1
+        val last = count % 5
+        var submit: BukkitTask? = null
+        submit = submit(period = 1) {
+            times++
+            repeat(if (times == max) last else 5) {
+                commandsRepeat.forEach {
+                    kotlin.runCatching {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            PlaceHolderHook.setPlaceHolder(
+                                it.replace("%player%", player.name), player
+                            )
+                        )
+                    }.getOrElse { it.printStackTrace() }
+                }
+            }
+            if (times == max) submit?.cancel()
+        }
+        player.sendColorMessages(message.map {
+            it.replace("%times%", count.toString())
+        })
         dbTransaction {
             val record = RewardRecord
                 .find { RewardRecords.group eq this@Rewards.id and (RewardRecords.player eq player.name) }
@@ -83,7 +97,7 @@ data class Rewards(
                 id,
                 section.getStringList("players"),
                 section.getStringList("commands"),
-                section.getStringList("commandsRepeat"),
+                section.getStringList("commands-repeat"),
                 section.getStringList("message")
             )
         }

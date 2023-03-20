@@ -1,0 +1,7 @@
+%sakuracdk_cdks%  获取玩家拥有的第一个cdk
+%sakuracdk_cdks_[count]%  获取玩家拥有的第[count]个cdk
+%sakuracdk_cdk_amount_[cdk]% 获取某个cdk的最大领取数/数量
+%sakuracdk_cdk_expiretime_[cdk]% 获取某个cdk的过期时间
+%sakuracdk_cdk_isexpire_[cdk]% 获取某个cdk是否过期
+%sakuracdk_cdk_allowrepeat_[cdk]% 获取某个cdk是否允许重复领取
+
