@@ -6,7 +6,7 @@ import org.bukkit.event.Listener
 import top.iseason.bukkit.sakuracdk.config.Config
 import top.iseason.bukkit.sakuracdk.config.RewardsYml
 import top.iseason.bukkit.sakuracdk.event.CDKAcceptEvent
-import top.iseason.bukkittemplate.utils.other.submit
+import top.iseason.bukkittemplate.utils.bukkit.SchedulerUtils.submit
 
 object RewardListener : Listener {
 

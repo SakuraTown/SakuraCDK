@@ -16,8 +16,12 @@ import top.iseason.bukkittemplate.command.ParamAdopter
 import top.iseason.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkittemplate.config.SimpleYAMLConfig
 import top.iseason.bukkittemplate.debug.info
+import top.iseason.bukkittemplate.hook.ItemsAdderHook
+import top.iseason.bukkittemplate.hook.MMOItemsHook
+import top.iseason.bukkittemplate.hook.OraxenHook
+import top.iseason.bukkittemplate.hook.PlaceHolderHook
 import top.iseason.bukkittemplate.utils.bukkit.EventUtils.listen
-import top.iseason.bukkittemplate.utils.bukkit.EventUtils.register
+import top.iseason.bukkittemplate.utils.bukkit.EventUtils.registerListener
 
 object SakuraCDK : BukkitPlugin {
 
@@ -36,10 +40,15 @@ object SakuraCDK : BukkitPlugin {
         //如果使用命令模块，取消注释
         CommandHandler.updateCommands()
         AuthMeHook.checkHooked()
-        PAPIExpansion.register()
+        PlaceHolderHook.checkHooked()
+        ItemsAdderHook.checkHooked()
+        OraxenHook.checkHooked()
+        MMOItemsHook.checkHooked()
+        if (PlaceHolderHook.hasHooked)
+            PAPIExpansion.register()
         if (Config.enableOwnerReward) {
             RewardsYml.load(false)
-            RewardListener.register()
+            RewardListener.registerListener()
             if (AuthMeHook.hasHooked) {
                 listen<LoginEvent> {
                     RewardListener.onLogin(player)

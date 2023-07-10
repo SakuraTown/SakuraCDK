@@ -11,6 +11,7 @@ buildscript {
         classpath("com.guardsquare:proguard-gradle:7.3.2")
     }
 }
+
 subprojects {
     group = rootProject.group
     version = rootProject.version
@@ -43,16 +44,23 @@ subprojects {
             name = "CodeMC"
             url = uri("https://repo.codemc.org/repository/maven-public")
         }
+        maven {
+            name = "PlaceholderAPI"
+            url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+        }
         mavenLocal()
     }
 
     dependencies {
         val kotlinVersion: String by rootProject
         compileOnly(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
+        compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
         //基础库
         compileOnly(kotlin("stdlib"))
         // 数据库
         val exposedVersion: String by rootProject
+        val nbtEditorVersion: String by rootProject
+        implementation("io.github.bananapuncher714:nbteditor:$nbtEditorVersion")
         compileOnly("org.jetbrains.exposed:exposed-core:$exposedVersion")
         compileOnly("org.jetbrains.exposed:exposed-dao:$exposedVersion")
         compileOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")

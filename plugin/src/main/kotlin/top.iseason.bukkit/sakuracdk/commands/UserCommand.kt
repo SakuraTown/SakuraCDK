@@ -18,8 +18,8 @@ import top.iseason.bukkittemplate.command.executor
 import top.iseason.bukkittemplate.config.DatabaseConfig
 import top.iseason.bukkittemplate.config.dbTransaction
 import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.sendColorMessage
+import top.iseason.bukkittemplate.utils.bukkit.SchedulerUtils.submit
 import top.iseason.bukkittemplate.utils.other.EasyCoolDown
-import top.iseason.bukkittemplate.utils.other.submit
 import java.time.LocalDateTime
 
 fun userCommand() {

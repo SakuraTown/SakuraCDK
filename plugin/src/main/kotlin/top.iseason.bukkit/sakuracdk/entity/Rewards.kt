@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.dbTransaction
 import top.iseason.bukkittemplate.hook.PlaceHolderHook
 import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.sendColorMessages
-import top.iseason.bukkittemplate.utils.other.submit
+import top.iseason.bukkittemplate.utils.bukkit.SchedulerUtils.submit
 
 data class Rewards(
     val id: String,

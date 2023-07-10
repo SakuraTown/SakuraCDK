@@ -38,4 +38,8 @@ runtime-libraries:
     - org.jetbrains.kotlin:kotlin-stdlib-jdk8
     - org.jetbrains.kotlin:kotlin-stdlib-jdk7
 
+softdepend:
+  - PlaceholderAPI
+  - AuthMe
+
 
