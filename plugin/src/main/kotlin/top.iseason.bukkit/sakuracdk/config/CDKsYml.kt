@@ -24,11 +24,11 @@ object CDKsYml : SimpleYAMLConfig() {
     override fun onLoaded(section: ConfigurationSection) {
         cdkCache.clear()
         for (key in section.getKeys(false)) {
-            val section = section.getConfigurationSection(key) ?: continue
-            val type = section.getString("type") ?: continue
+            val sec = section.getConfigurationSection(key) ?: continue
+            val type = sec.getString("type") ?: continue
             val cdk: BaseCDK = when (type.lowercase()) {
-                "normal" -> NormalCDKYml.fromSection(key, section)
-                "random" -> RandomCDKYml.fromSection(key, section)
+                "normal" -> NormalCDKYml.fromSection(key, sec)
+                "random" -> RandomCDKYml.fromSection(key, sec)
                 else -> null
             } ?: continue
             cdkCache[cdk.id] = cdk

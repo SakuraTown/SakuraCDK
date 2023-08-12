@@ -14,11 +14,11 @@ dependencies {
 
 //    协程库
 //    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-    implementation("org.bstats:bstats-bukkit:3.0.1")
-    compileOnly("me.clip:placeholderapi:2.11.3")
+
     // 本地依赖放在libs文件夹内
     compileOnly(fileTree("libs") { include("*.jar") })
     compileOnly("fr.xephi:authme:5.6.0-SNAPSHOT") { isTransitive = false }
+    implementation("org.bstats:bstats-bukkit:3.0.1")
 }
 
 // 插件名称，请在gradle.properties 修改
@@ -61,7 +61,7 @@ tasks {
         }
         relocate("top.iseason.bukkittemplate", "$groupS.libs.core")
         relocate("org.bstats", "$groupS.libs.bstats")
-//        relocate("io.github.bananapuncher714.nbteditor", "$groupS.libs.nbteditor")
+        relocate("io.github.bananapuncher714.nbteditor", "$groupS.libs.nbteditor")
     }
     build {
         dependsOn("buildPlugin")

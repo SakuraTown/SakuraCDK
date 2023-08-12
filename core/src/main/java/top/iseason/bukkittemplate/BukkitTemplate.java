@@ -37,15 +37,6 @@ public class BukkitTemplate extends JavaPlugin {
     }
 
     /**
-     * 获取Bukkit插件主类
-     *
-     * @return Bukkit插件主类
-     */
-    public static JavaPlugin getPlugin() {
-        return plugin;
-    }
-
-    /**
      * 加载插件主类
      */
     private BukkitPlugin loadInstance() {
@@ -68,6 +59,15 @@ public class BukkitTemplate extends JavaPlugin {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 获取Bukkit插件主类
+     *
+     * @return Bukkit插件主类
+     */
+    public static JavaPlugin getPlugin() {
+        return plugin;
     }
 
     /**
