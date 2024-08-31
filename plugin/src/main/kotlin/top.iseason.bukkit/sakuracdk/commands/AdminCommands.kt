@@ -61,22 +61,17 @@ fun cdkAdminCommands() {
             default = PermissionDefault.OP
             async = true
             description = "将数据同步至数据库"
-            params = listOf(Param("<type>", listOf("all", "random", "cdk", "kit")))
+            params = listOf(Param("<type>", listOf("all", "random", "normal", "cdks", "kits")))
             executor { params, sender ->
-                val option = params.nextOrNull<String>() ?: "all"
+                val option = params.nextOrNull<String>()?.lowercase() ?: "all"
                 sender.sendColorMessage("&6开始上传数据...")
                 try {
                     when (option) {
-                        "random" -> {
-                            CDKsYml.onDisable()
-                            CDKsYml.updateRandomData()
-                        }
-
-                        "cdk" -> CDKsYml.updateAllData()
-                        "kit" -> KitsYml.updateData()
+                        "random" -> CDKsYml.updateRandomData()
+                        "normal" -> CDKsYml.updateNormalData()
+                        "cdks" -> CDKsYml.updateAllData()
+                        "kits" -> KitsYml.updateData()
                         else -> {
-                            CDKsYml.onDisable()
-                            CDKsYml.updateRandomData()
                             CDKsYml.updateAllData()
                             KitsYml.updateData()
                         }
@@ -131,6 +126,7 @@ fun cdkAdminCommands() {
                 KitsYml.load()
                 CDKsYml.load()
                 RewardsYml.load()
+                Lang.load()
                 sender.sendColorMessage(Lang.command__reload)
             }
         }

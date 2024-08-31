@@ -2,7 +2,6 @@ package top.iseason.bukkit.sakuracdk.entity
 
 import org.bukkit.configuration.ConfigurationSection
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import top.iseason.bukkit.sakuracdk.config.CDKsYml
 import top.iseason.bukkit.sakuracdk.config.KitsYml
@@ -20,31 +19,6 @@ class NormalCDKYml(
     expire: LocalDateTime,
     kits: List<KitYml>
 ) : BaseCDK(id, expire, kits) {
-
-    override fun upLoadData() {
-        dbTransaction {
-            val findById = NormalCDK.findById(this@NormalCDKYml.id)
-            if (findById != null) {
-                findById.expire = this@NormalCDKYml.expire
-                findById.kits = getKitsString()
-                findById.amount = this@NormalCDKYml.amount
-                return@dbTransaction
-            }
-            NormalCDK.new(this@NormalCDKYml.id) {
-                this.expire = this@NormalCDKYml.expire
-                this.kits = getKitsString()
-                this.amount = this@NormalCDKYml.amount
-            }
-            if (!CDKs.has(this@NormalCDKYml.id)) {
-                CDKs.insert {
-                    it[CDKs.id] = this@NormalCDKYml.id
-                    it[CDKs.group] = this@NormalCDKYml.id
-                    it[CDKs.type] = "normal"
-                }
-            }
-        }
-    }
-
 
     override fun toSection(section: ConfigurationSection) {
         section["type"] = "normal"

@@ -2,7 +2,6 @@ package top.iseason.bukkit.sakuracdk.entity
 
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.StringIdTable
 import top.iseason.bukkittemplate.config.dbTransaction
 import java.time.LocalDateTime
@@ -20,7 +19,7 @@ fun <T : Comparable<T>> IdTable<T>.has(id: T): Boolean {
     return try {
         var has = false
         dbTransaction {
-            has = !this@has.slice(this@has.id).select { this@has.id eq id }.limit(1).empty()
+            has = !this@has.select(this@has.id).where { this@has.id eq id }.empty()
         }
         has
     } catch (e: Exception) {

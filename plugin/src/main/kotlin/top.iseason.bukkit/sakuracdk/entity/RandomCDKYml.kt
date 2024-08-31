@@ -5,7 +5,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.select
 import top.iseason.bukkit.sakuracdk.SakuraCDK
 import top.iseason.bukkit.sakuracdk.config.CDKsYml
 import top.iseason.bukkit.sakuracdk.config.KitsYml
@@ -27,24 +26,6 @@ class RandomCDKYml(
 ) : BaseCDK(group, expire, kits) {
 
     var allowRepeat = false
-
-    override fun upLoadData() {
-        dbTransaction {
-            val findById = RandomCDK.findById(group)
-            if (findById != null) {
-                findById.expire = this@RandomCDKYml.expire
-                findById.kits = getKitsString()
-                findById.repeat = this@RandomCDKYml.allowRepeat
-                return@dbTransaction
-            }
-            RandomCDK.new(group) {
-                this.expire = this@RandomCDKYml.expire
-                this.kits = getKitsString()
-                this.repeat = this@RandomCDKYml.allowRepeat
-            }
-        }
-    }
-
 
     fun removeCDK(cdk: String) {
         cdkSet.remove(cdk)
@@ -139,7 +120,7 @@ class RandomCDK(id: EntityID<String>) : StringEntity(id) {
                     val findById = Kit.findById(s) ?: continue
                     kitYmls.add(findById.toKitYml())
                 }
-                cdks = CDKs.slice(CDKs.id).select { CDKs.group eq group }.map { it[CDKs.id].value }.toHashSet()
+                cdks = CDKs.select(CDKs.id).where { CDKs.group eq group }.map { it[CDKs.id].value }.toHashSet()
             }
         }
         val randomCDKYml = RandomCDKYml(group, expire, kitYmls, cdks)

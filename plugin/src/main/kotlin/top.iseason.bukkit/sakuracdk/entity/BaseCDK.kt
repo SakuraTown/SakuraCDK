@@ -12,7 +12,6 @@ abstract class BaseCDK(
     abstract fun toSection(section: ConfigurationSection)
     abstract fun getCDKs(): List<String>
     abstract fun allowRepeat(): Boolean
-    abstract fun upLoadData()
 
     /**
      * 检查是否过期

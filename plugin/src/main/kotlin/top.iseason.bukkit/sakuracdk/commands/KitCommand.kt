@@ -38,7 +38,7 @@ object KitCreateNode : CommandNode(
         val time = params.next<String>()
         val expires = try {
             LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Utils.parseTimeAfter(time)
         }
         val kitYml = KitYml(id, LocalDateTime.now(), expires)

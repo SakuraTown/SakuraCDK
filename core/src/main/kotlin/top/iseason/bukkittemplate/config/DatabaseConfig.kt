@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.statements.StatementContext
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.transactionManager
 import top.iseason.bukkittemplate.BukkitTemplate
 import top.iseason.bukkittemplate.DisableHook
 import top.iseason.bukkittemplate.config.annotations.Comment
@@ -19,6 +20,8 @@ import top.iseason.bukkittemplate.config.annotations.FilePath
 import top.iseason.bukkittemplate.config.annotations.Key
 import top.iseason.bukkittemplate.debug.debug
 import top.iseason.bukkittemplate.debug.info
+import top.iseason.bukkittemplate.utils.JavaVersion
+import java.io.Closeable
 import java.io.File
 import java.util.*
 
@@ -124,6 +127,8 @@ object DatabaseConfig : SimpleYAMLConfig() {
     @Key
     var data_source__leakDetectionThreshold = 0L
 
+    private var ds: Closeable? = null
+
 
     // table缓存
     private var tables: Array<out Table> = emptyArray()
@@ -132,10 +137,20 @@ object DatabaseConfig : SimpleYAMLConfig() {
     private var isConnecting = false
     lateinit var connection: Database
         private set
-    private var ds: HikariDataSource? = null
 
     init {
         DisableHook.addTask { closeDB() }
+    }
+
+    init {
+        val runtimeManager = BukkitTemplate.getRuntimeManager()
+            .addRepository("https://maven.aliyun.com/repository/public")
+            .addRepository("https://repo.maven.apache.org/maven2/")
+        if (JavaVersion.isGreaterOrEqual(11)) {
+            runtimeManager.downloadDependency("com.zaxxer:HikariCP:5.1.0", 1)
+        } else {
+            runtimeManager.downloadDependency("com.zaxxer:HikariCP:4.0.3", 1)
+        }
     }
 
     override fun onLoaded(section: ConfigurationSection) {
@@ -176,26 +191,30 @@ object DatabaseConfig : SimpleYAMLConfig() {
             }
             val config = when (database_type) {
                 "MySQL" -> HikariConfig(props).apply {
-                    runtimeManager.downloadADependency("mysql:mysql-connector-java:8.0.30")
+                    runtimeManager.downloadADependency("mysql:mysql-connector-java:8.0.33")
                     jdbcUrl = "jdbc:mysql://$address/$database_name$params"
                     //可能兼容旧的mysql驱动
                     driverClassName = "com.mysql.jdbc.Driver"
                 }
 
                 "MariaDB" -> HikariConfig(props).apply {
-                    runtimeManager.downloadADependency("org.mariadb.jdbc:mariadb-java-client:3.1.3")
+                    runtimeManager.downloadADependency("org.mariadb.jdbc:mariadb-java-client:3.4.1")
                     jdbcUrl = "jdbc:mariadb://$address/$database_name$params"
                     driverClassName = "org.mariadb.jdbc.Driver"
                 }
 
                 "SQLite" -> HikariConfig(props).apply {
-                    runtimeManager.downloadADependencyAssembly("org.xerial:sqlite-jdbc:3.41.2.0")
+                    runtimeManager.downloadADependencyAssembly("org.xerial:sqlite-jdbc:3.46.1.0")
                     jdbcUrl = "jdbc:sqlite:$address$params"
                     driverClassName = "org.sqlite.JDBC"
                 }
 
                 "H2" -> HikariConfig().apply {
-                    runtimeManager.downloadADependency("com.h2database:h2:2.2.220")
+                    if (JavaVersion.isGreaterOrEqual(11)) {
+                        runtimeManager.downloadADependency("com.h2database:h2:2.3.232")
+                    } else {
+                        runtimeManager.downloadADependency("com.h2database:h2:2.2.224")
+                    }
                     jdbcUrl = "jdbc:h2:$address/$database_name$params"
                     driverClassName = "org.h2.Driver"
                 }
@@ -207,13 +226,22 @@ object DatabaseConfig : SimpleYAMLConfig() {
                 }
 
                 "Oracle" -> HikariConfig(props).apply {
-                    runtimeManager.downloadADependency("com.oracle.database.jdbc:ojdbc8:21.9.0.0")
+                    val oracleVersion = "23.5.0.24.07"
+                    if (JavaVersion.isGreaterOrEqual(11)) {
+                        runtimeManager.downloadADependency("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
+                    } else {
+                        runtimeManager.downloadADependency("com.oracle.database.jdbc:ojdbc8:$oracleVersion")
+                    }
                     jdbcUrl = "dbc:oracle:thin:@//$address/$database_name$params"
                     driverClassName = "oracle.jdbc.OracleDriver"
                 }
 
                 "SQLServer" -> HikariConfig(props).apply {
-                    runtimeManager.downloadADependency("com.microsoft.sqlserver:mssql-jdbc:11.2.3.jre8")
+                    if (JavaVersion.isGreaterOrEqual(11)) {
+                        runtimeManager.downloadADependency("com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11")
+                    } else {
+                        runtimeManager.downloadADependency("com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre8")
+                    }
                     jdbcUrl = "jdbc:sqlserver://$address;DatabaseName=$database_name$params"
                     driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
                 }
@@ -233,10 +261,12 @@ object DatabaseConfig : SimpleYAMLConfig() {
                 } catch (_: Throwable) {
                 }
             }
-            ds = HikariDataSource(config)
-            connection = Database.connect(ds!!, databaseConfig = org.jetbrains.exposed.sql.DatabaseConfig.invoke {
-                sqlLogger = MySqlLogger
-            })
+            val hikariDataSource = HikariDataSource(config)
+            ds = hikariDataSource
+            connection =
+                Database.connect(hikariDataSource, databaseConfig = org.jetbrains.exposed.sql.DatabaseConfig.invoke {
+                    sqlLogger = MySqlLogger
+                })
             isConnected = true
             info("&a数据库链接成功: &6$database_type")
         }.getOrElse {
@@ -267,8 +297,8 @@ object DatabaseConfig : SimpleYAMLConfig() {
         this.tables = tables
         runCatching {
             dbTransaction {
-                SchemaUtils.createMissingTablesAndColumns(*tables)
-//                SchemaUtils.create(*tables)
+                SchemaUtils.create(*tables)
+//                SchemaUtils.createMissingTablesAndColumns(tables = tables, inBatch = false, withLogs = false)
             }
         }.getOrElse { it.printStackTrace() }
     }
@@ -300,5 +330,12 @@ object MySqlLogger : SqlLogger {
 /**
  * 使用本插件数据库的事务
  */
-fun <T> dbTransaction(statement: Transaction.() -> T) =
-    transaction(DatabaseConfig.connection, statement)
+fun <T> dbTransaction(readOnly: Boolean = false, statement: Transaction.() -> T): T {
+    val db = DatabaseConfig.connection
+    return transaction(
+        db.transactionManager.defaultIsolationLevel,
+        readOnly,
+        db,
+        statement
+    )
+}

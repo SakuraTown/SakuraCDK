@@ -1,6 +1,5 @@
 package top.iseason.bukkit.sakuracdk.entity
 
-import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.StringIdTable
 import top.iseason.bukkittemplate.config.dbTransaction
 
@@ -13,14 +12,11 @@ object CDKs : StringIdTable() {
         val mutableListOf = mutableMapOf<String, MutableList<String>>()
         //查询数据
         dbTransaction {
-            CDKs.select { type eq "random" }.forEach {
+            CDKs.select(CDKs.id, group).where { type eq "random" }.forEach {
                 val group = it[group]
-                var strings = mutableListOf[group]
-                if (strings == null) {
-                    strings = mutableListOf()
-                    mutableListOf[group] = strings
-                }
-                strings.add(it[CDKs.id].value)
+                mutableListOf
+                    .computeIfAbsent(group) { mutableListOf() }
+                    .add(it[CDKs.id].value)
             }
         }
         mutableListOf.forEach { (group, cdks) ->

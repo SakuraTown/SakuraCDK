@@ -2,7 +2,6 @@
 
 package top.iseason.bukkittemplate.utils.bukkit
 
-import io.github.bananapuncher714.nbteditor.NBTEditor
 import org.bukkit.Material
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -47,7 +46,7 @@ object EntityUtils {
         if (this !is Entity) return
         for (addItem in addItems) {
             if (addItem == null) continue
-            val item = world.spawnEntity(location, EntityType.DROPPED_ITEM) as Item
+            val item = world.spawnEntity(location, EntityType.entries[1]) as Item //1.20.6改了枚举名 目前看来1号都是掉落物
             item.setItemStack(addItem)
         }
     }
@@ -67,11 +66,6 @@ object EntityUtils {
      * @return 没有或者是空气都返回null
      */
     fun Player.getHeldItem(): ItemStack? = inventory.getHeldItem()
-
-    /**
-     * 序列化为json
-     */
-    fun Entity.toJson(): String = NBTEditor.getNBTCompound(this).toJson()
 
     /**
      * 扣除某种物品数量

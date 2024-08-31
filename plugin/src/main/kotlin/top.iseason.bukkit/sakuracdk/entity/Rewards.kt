@@ -6,7 +6,6 @@ import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitTask
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.select
 import top.iseason.bukkittemplate.config.dbTransaction
 import top.iseason.bukkittemplate.hook.PlaceHolderHook
 import top.iseason.bukkittemplate.utils.bukkit.MessageUtils.sendColorMessages
@@ -28,12 +27,12 @@ data class Rewards(
 
     fun applyOnLogin(player: Player) {
         val total = dbTransaction {
-            Records.slice(Records.id.count()).select { Records.group eq this@Rewards.id }
+            Records.select(Records.id.count()).where { Records.group eq this@Rewards.id }
                 .first()[Records.id.count()]
         }.toInt()
         val accepted = dbTransaction {
-            RewardRecords.slice(RewardRecords.count)
-                .select { RewardRecords.group eq this@Rewards.id and (RewardRecords.player eq player.name) }
+            RewardRecords.select(RewardRecords.count)
+                .where { RewardRecords.group eq this@Rewards.id and (RewardRecords.player eq player.name) }
                 .firstOrNull()?.get(RewardRecords.count) ?: 0
         }
         if (accepted >= total) return
